@@ -1,0 +1,15 @@
+charset,UTF-8
+version,1
+
+group,ごーすとじてん
+{
+	scope,0
+
+	0,素
+}
+
+group,その他
+{
+	10,無し
+}
+

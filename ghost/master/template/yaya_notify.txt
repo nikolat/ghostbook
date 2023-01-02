@@ -1,0 +1,61 @@
+//******************************************************************************
+// initializing global variable
+//******************************************************************************
+OnSystemLoad.NOTIFY.EVENT
+{
+	sakura.name          = ''
+	ghostexlist          = IARRAY
+	ghostexcount         = 0
+	installedplugin_name = IARRAY
+	installedplugin_id   = IARRAY
+	basewareversion      = ''
+}
+OnSystemUnload.NOTIFY.EVENT
+{
+	ERASEVAR('sakura.name')
+	ERASEVAR('ghostexlist')
+	ERASEVAR('ghostexcount')
+	ERASEVAR('installedplugin_name')
+	ERASEVAR('installedplugin_id')
+	ERASEVAR('basewareversion')
+}
+
+//******************************************************************************
+// self info
+//******************************************************************************
+OnNotifySelfInfo : void
+{
+	sakura.name = reference[1]
+}
+
+//******************************************************************************
+// other ghost booting info
+//******************************************************************************
+On_otherghostname : void
+{
+	ghostexlist  = IARRAY
+	foreach reference; _ref { ghostexlist ,= _ref[0,CHR(0x1)] }
+	if sender == 'crow' { ghostexlist[ASEARCH(sakura.name,ghostexlist)] = IARRAY }
+	ghostexcount = ARRAYSIZE(ghostexlist)
+}
+
+//******************************************************************************
+// installed plugin info
+//******************************************************************************
+On_installedplugin : void
+{
+	installedplugin_name = IARRAY
+	installedplugin_id   = IARRAY
+	foreach reference; _ref {
+		installedplugin_name ,= _ref[0,CHR(0x1)]
+		installedplugin_id   ,= _ref[1,CHR(0x1)]
+	}
+}
+
+//******************************************************************************
+// baseware info
+//******************************************************************************
+On_basewareversion : void
+{
+	basewareversion = reference[0]
+}

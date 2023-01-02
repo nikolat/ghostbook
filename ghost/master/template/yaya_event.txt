@@ -1,0 +1,715 @@
+//******************************************************************************
+// initializing global variable
+//******************************************************************************
+OnSystemLoad.GET.EVENT
+{
+	var.wheelcounter = -1
+	ERASEVAR('var.BalloonSelect.Page')
+}
+OnSystemUnload.GET.EVENT
+{
+	ERASEVAR('var.wheelcounter')
+	ERASEVAR('var.BalloonSelect.Page')
+}
+
+//******************************************************************************
+// required event
+//******************************************************************************
+OnFirstBoot           { '\0\s[0]\1\s[10]\e' }
+OnBoot                { '\0\s[0]\1\s[10]\e' }
+OnGhostChanged        { '\0\s[0]\1\s[10]\e' }
+OnShellChanged        { '\0\s[0]\1\s[10]\e' }
+OnWindowStateRestore  { '\0\s[0]\1\s[10]\e' }
+OnClose               { '\-\e' }
+
+//******************************************************************************
+// changing event
+//******************************************************************************
+OnGhostCalled         { '\0\s[0]\1\s[10]\e' }
+OnGhostChanging       { '\0\s[0]' }
+OnCloseAll            { '\-\e' }
+/*
+OnGhostCalling        { '\0\s[0]\e' }
+OnGhostCallComplete   { '\0\s[0]\e' }
+OnOtherGhostBooted    { '\0\s[0]\e' }
+OnOtherGhostChanged   { '\0\s[0]\e' }
+OnOtherGhostClosed    { '\0\s[0]\e' }
+OnShellChanging       { '\0\s[0]\e' }
+OnShellScaling        { '\0\s[0]\e' }
+OnWindowStateMinimize { '\0\s[0]\e' }
+OnDisplayChange       { '\0\s[0]\e' }
+*/
+
+//******************************************************************************
+// vanish event
+//******************************************************************************
+OnVanished            { '\0\s[0]\1\s[10]\e' }
+/*
+OnVanishSelecting     { '\0\s[0]\e' }
+OnVanishSelected      { '\0\s[0]\e' }
+OnVanishButtonHold    { '\0\s[0]\e' }
+OnVanishCancel        { '\0\s[0]\e' }
+OnOtherGhostVanished  { '\0\s[0]\e' }
+*/
+
+//******************************************************************************
+// URLdrop event
+//******************************************************************************
+OnURLDropping         { '\0\s[0]\_q' + reference[0] + '.\_q\e' }
+OnURLDropped          { '\0\s[0]\_q' + reference[0] + '.\_q\e' }
+
+//******************************************************************************
+// file making event
+//******************************************************************************
+OnUpdatedataCreating  { '\0\s[0]\_qCreating updates2.dau\_q\e' }
+OnUpdatedataCreated   { '\0\s[0]\_qComplete.\_q\e' }
+OnNarCreating         { '\0\s[0]\_qCreateing NAR\_q\e' }
+OnNarCreated          { "\0\s[0]\_q「%(reference[0])」／「%(reference[1])」 created so far.\_q\e" }
+
+//******************************************************************************
+// update event
+//******************************************************************************
+OnUpdateBegin         { '\0\s[0]\_qUpdate Begin.\_q\e' }
+OnUpdateReady         { '\0\s[0]\_qUpdating...\_q\e' }
+OnUpdateComplete      { '\0\s[0]\_q' + reference[0] + '.\_q\e' }
+OnUpdateFailure       { '\0\s[0]\_q' + reference[0] + '.\_q\e' }
+/*
+OnUpdate.OnDownloadBegin      { '\0\s[0]\_q' + reference[0] + '\_q\e' }
+OnUpdate.OnMD5CompareBegin    { '\0\s[0]\_qMD5Compare\_q\e' }
+OnUpdate.OnMD5CompareComplete { '\0\s[0]\_qOK\_q\e' }
+OnUpdate.OnMD5CompareFailure  { '\0\s[0]\_qFailure\_q\e' }
+*/
+OnUpdateOtherBegin    { '\0\s[0]\_qUpdate ' + reference[3] + ' Begin.\_q\e' }
+OnUpdateOtherReady    { '\0\s[0]\_qUpdating...\_q\e' }
+OnUpdateOtherComplete { '\0\s[0]\_q' + reference[0] + '.\_q\e' }
+OnUpdateOtherFailure  { '\0\s[0]\_q' + reference[0] + '.\_q\e' }
+/*
+OnUpdateOther.OnDownloadBegin      { '\0\s[0]\_q' + reference[0] + '\_q\e' }
+OnUpdateOther.OnMD5CompareBegin    { '\0\s[0]\_qMD5Compare\_q\e' }
+OnUpdateOther.OnMD5CompareComplete { '\0\s[0]\_qOK\_q\e' }
+OnUpdateOther.OnMD5CompareFailure  { '\0\s[0]\_qFailure\_q\e' }
+*/
+
+//******************************************************************************
+// mail check event
+//******************************************************************************
+OnBIFFBegin   { '\0\s[0]\_qBIFF begin.\_q\e' }
+OnBIFFFailure { '\0\s[0]\_q' + reference[0] + '.\_q\e' }
+OnBIFFComplete
+{
+	_ret = ''
+	if reference[0] == 0 {
+		_ret += 'Not new.'
+	} elseif reference[0] > 0 {
+		_ret += reference[0] + ' mail come to your mailbox.\n\n[half]'
+		_ret += AYATEMPLATE.MenuItem('open mailer','OpenMailer' ,0)
+		_ret += AYATEMPLATE.MenuItem('cancel'     ,'Menu_CANCEL',100)
+	}
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+sys.cs.OpenMailer
+{
+	_ret = ''
+	if (sender == 'SSP') || (sender == 'embryo') {
+		_ret += '\![open,mailer]'
+	} else {
+		if basewarenameex  == 'SSP' {
+			_ret += '\f[color,255,0,0]\f[height,+24]!!! Warning !!!\f[height,default]\f[color,default]'
+		} else {
+			_ret += '!!! Warning !!!'
+		}
+		_ret += "\n\n\n%(sender) tried to open your mailer."
+	}
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+//******************************************************************************
+// headlinesense event
+//******************************************************************************
+OnHeadlinesenseBegin    { '\0\s[0]\_q' + reference[0] + ' Headline...\_q\e' }
+OnHeadlinesenseComplete { '\0\s[0]\_q' + reference[0] + '\_q\e' }
+OnHeadlinesenseFailure  { '\0\s[0]\_qFailure. ' + reference[0] + '.\_q\e' }
+OnHeadlinesense.OnFind
+{
+	_ret = ''
+	if RE_MATCH(sender,'SSP|embryo|crow|NiseRingo|ninix-aya') {
+		_ret += "\_q■%(reference[0])\_q\n\n[half]\_n"
+		_ret += SHIORI3FW.EscapeDangerousTags(reference[3])/
+			+ '\_n\n[half]\_q'
+		if (reference[2] == 'First') || (reference[2] == 'Next') {
+			_ret += sys.fnc.marker() + "\q[%(AYATEMPLATE.MakeJustText('next page',46)),]\n"
+		}
+		_ret += AYATEMPLATE.MenuItem('open browser',reference[1] ,0)
+		_ret += AYATEMPLATE.MenuItem('cancel'      ,'Menu_CANCEL',100)
+		_ret = '\0\b[2]\s[0]' + _ret + '\e'
+	} else {
+		_ret += sys.fnc.ShowWarningBrowsing(sender,reference[1])
+		_ret = '\0\s[0]\_q' + _ret + '\_q\e'
+	}
+	_ret
+}
+OnRSSBegin   { '\0\s[0]\_q' + reference[0] + ' RSS...\_q\e' }
+OnRSSFailure { '\0\s[0]\_qFailure. ' + reference[0] + '.\_q\e' }
+OnRSSComplete
+{
+	_ret = ''
+	if RE_MATCH(sender,'SSP|embryo|crow|NiseRingo|ninix-aya') {
+		_ret += "■%(reference[0])\n\n[half]\_n"
+		for _i = 2; _i < ARRAYSIZE(reference); _i++ {
+			if _i >= 22 {
+				_ret += 'and more...\n'
+				break
+			}
+			_r     = SPLIT(reference[_i],CHR(1))
+			_title = _r[0]
+			_url   = _r[1]
+			_date  = _r[2]
+			if RE_SEARCH(_title,'(^AD:)|(^PR:)|(\[ *PR *\])') {
+				continue
+			}
+			_content = _title
+			if STRLEN(_date) {
+				_date = SPLIT(_date,',')
+				_content = STRFORM("[$02d/$02d]",TOINT(_date[1]),TOINT(_date[2])) + _content
+			}
+			_ret += "\_a[%(_url)]%(SHIORI3FW.EscapeAllTags(AYATEMPLATE.MakeJustText(_content,46)))\_a\n"
+		}
+		_ret += '\_n\n[half]'
+		_ret += AYATEMPLATE.MenuItem('open browser',reference[1] ,0)
+		_ret += AYATEMPLATE.MenuItem('cancel'      ,'Menu_CANCEL',100)
+		_ret = '\![set,choicetimeout,-1]\![set,balloontimeout,-1]\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+	} else {
+		_ret += sys.fnc.ShowWarningBrowsing(sender,reference[1])
+		_ret = '\0\s[0]\_q' + _ret + '\_q\e'
+	}
+	_ret
+}
+sys.fnc.ShowWarningBrowsing
+{
+	_sender = _argv[0]
+	_url    = _argv[1]
+	_ret    = ''
+	if basewarenameex  == 'SSP' {
+		_ret += '\f[color,255,0,0]\f[height,+24]!!! Warning !!!\f[height,default]\f[color,default]'
+	} else {
+		_ret += '!!! Warning !!!'
+	}
+	_ret += "\n\n\n%(_sender) tried to open your browser\n/
+		and to lead you to\n/
+		%(CHR(0x22))%(_url)%(CHR(0x22)) ."
+	_ret
+}
+
+//******************************************************************************
+// SNTP event
+//******************************************************************************
+OnSNTPBegin   { '\0\s[0]\_qSNTPBegin.\_q\e' }
+OnSNTPFailure { '\0\s[0]\_qFailure.\_q\e' }
+OnSNTPCompare
+{
+	"\0\s[0]\_q/
+	before %(AYATEMPLATE.SNTPCompare_StrForm(reference[2]))\n/
+	after  %(AYATEMPLATE.SNTPCompare_StrForm(reference[1]))\n\n/
+	\6Complete.\_q\e"
+}
+AYATEMPLATE.SNTPCompare_StrForm
+{
+	_txt = SPLIT(_argv[0],',')
+	STRFORM("$04d/$02d/$02d $02d:$02d:$02d"/
+		,TOINT(_txt[0])/
+		,TOINT(_txt[1])/
+		,TOINT(_txt[2])/
+		,TOINT(_txt[3])/
+		,TOINT(_txt[4])/
+		,TOINT(_txt[5])/
+	)
+}
+
+//******************************************************************************
+// install event
+//******************************************************************************
+OnInstallBegin   { '' }
+OnInstallFailure { '\0\s[0]\_qFailure.\_q\e' }
+OnInstallComplete
+{
+	_id   = SPLIT(reference[0],' with',2)[0] //hogehoge with hemohemo
+	_ret  = ''
+	_ret += "「%(reference[1])」/「%(reference[0])」 installed.\n\n"
+	if RE_MATCH(_id,'ghost|shell|balloon') {
+		if basewarenameex  == 'SSP' {
+			_ret += AYATEMPLATE.MenuItem('change','GOYAUTIL.InstallChange','lastinstalled',_id,0)
+		} else {
+			_ret += AYATEMPLATE.MenuItem('change','GOYAUTIL.InstallChange',reference[1],_id,0)
+		}
+		if (basewarenameex  == 'SSP') && (_id == 'ghost') {
+			_ret += AYATEMPLATE.MenuItem('call','GOYAUTIL.InstallCall','lastinstalled',100)
+		}
+		_ret += AYATEMPLATE.MenuItem('hold','Menu_CANCEL',100)
+	}
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+OnInstallRefuse
+{
+	tmp.var.sakuraname = reference[0]
+	if sender == 'SSP' {
+		"\![get,property,OnInstallRefuseChange/
+			,ghostlist(%(tmp.var.sakuraname)).sakuraname/
+			,ghostlist(%(tmp.var.sakuraname)).name]\e"
+	} else {
+		"\![raise,OnInstallRefuseChange,%(tmp.var.sakuraname)]\e"
+	}
+}
+OnInstallRefuseChange
+{
+	_sakuraname = reference[0]
+	_name       = reference[1]
+	_ret        = "Refused. %(tmp.var.sakuraname)'s archive."
+	if !(ASEARCH(tmp.var.sakuraname,ghostexlist) >= 0) {
+		if (basewarenameex  == 'SSP') && (_sakuraname != '') {
+			_ret += AYATEMPLATE.MenuItem('change','GOYAUTIL.InstallChange',_name,'ghost',200)
+			_ret += AYATEMPLATE.MenuItem('call'  ,'GOYAUTIL.InstallCall'  ,_name,100)
+			_ret += AYATEMPLATE.MenuItem('hold'  ,'Menu_CANCEL',100)
+		} elseif basewarenameex  != 'SSP' {
+			_ret += AYATEMPLATE.MenuItem('change','GOYAUTIL.InstallChange',_sakuraname,'ghost',200)
+			_ret += AYATEMPLATE.MenuItem('hold'  ,'Menu_CANCEL',100)
+		}
+	}
+	ERASEVAR('tmp.var.sakuraname')
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+sys.csex.GOYAUTIL.InstallChange
+{
+	"\![change,%(reference[1]),%(reference[0])]"
+}
+sys.csex.GOYAUTIL.InstallCall
+{
+	"\![call,ghost,%(reference[0])]"
+}
+
+//******************************************************************************
+// UI event
+//******************************************************************************
+OnUserInput
+{
+	if ISFUNC('sys.input.' + reference[0]) {
+		EVAL('sys.input.' + reference[0])
+	}
+}
+OnKeyPress
+{
+	if ISFUNC('sys.key.' + reference[0]) {
+		EVAL('sys.key.' + reference[0])
+	}
+}
+OnChoiceSelect
+{
+	_id = reference[0]
+	if ISFUNC('sys.cs.' + _id) {
+		EVAL('sys.cs.' + _id)
+	} elseif sender == 'crow' {
+		if ISFUNC('sys.csex.' + _id) {
+			reference[0] = IARRAY
+			EVAL('sys.csex.' + _id)
+		}
+	} elseif basewarenameex  != 'SSP' {
+		reference = IARRAY
+		foreach SPLIT(_id,CHR(0x1)); _ref {
+			reference ,= TOAUTO(_ref)
+		}
+		_id = reference[0]
+		if ISFUNC('sys.csex.' + _id) {
+			reference[0] = IARRAY
+			EVAL('sys.csex.' + _id)
+		}
+	}
+}
+OnChoiceSelectEx
+{
+	_id = reference[1]
+	if ISFUNC('sys.csex.' + _id) {
+		reference[0,1] = IARRAY
+		EVAL('sys.csex.' + _id)
+	}
+}
+OnChoiceTimeout
+{
+	if basewarenameex  == 'SSP' {
+		'\0\s[0]\e'
+	} else {
+		'\0\s[0]\b[-1]\e'
+	}
+}
+OnAnchorSelect
+{
+	if RE_MATCH(reference[0], '^https?://.+$') {
+		if basewarenameex  == 'SSP' {
+			'\C'
+		}
+		--
+		'\0\s[0]\_q' + sys.fnc.OpenBrowserSafe(reference[0]) + '\_q\e'
+	} else {
+		if ISFUNC('sys.as.' + reference[0]) {
+			EVAL('sys.as.' + reference[0])
+		}
+	}
+}
+sys.fnc.OpenBrowserSafe
+{
+	_url = AYATEMPLATE.EscapeText(_argv[0])
+	_ret = ''
+	if RE_MATCH(sender, 'SSP|embryo|crow|NiseRingo|ninix-aya') {
+		_ret += "\![open,browser,%(_url)]"
+	} else {
+		_ret += '\f[color,255,0,0]\f[height,+24]!!! Warning !!!\f[height,default]\f[color,default]'
+		_ret += "\n\n\n%(sender) tried to open your browser\n/
+			and to lead you to\n/
+			%(_url) ."
+	}
+	_ret
+}
+
+//******************************************************************************
+// communicate event
+//******************************************************************************
+OnCommunicate
+{
+	if reference[2] == 'ECHO/1.0' {			//台本コミュニケート対応
+		_regexp = '\\!\[raiseother,ウィラ・ジーン,OnRequestProperty,ごーすとじてん,0,(page0[0-9]|プロフィール)\]'
+		if RE_MATCH(reference[3],_regexp) {	//信頼している相手からはセキュリティ解除
+			reference[3]
+		} else {							//危険なタグはエスケープ
+			SHIORI3FW.EscapeDangerousTags(reference[3])
+		}
+		res_reference[0] = reference[0]
+		marker = 'Communicate from ' + reference[0]
+	} elseif reference[2] == 'JPRadish' {	//大根コミュニケート対応
+		sys.fnc.ExecuteJPRadish(reference)
+	}
+}
+sys.fnc.ExecuteJPRadish
+{
+	res_reference[0] = _argv[0]
+	res_reference[1] = 'JPRadish'
+
+	case _argv[3] {
+	when 'ユーザからプレゼント' {
+		'\0\s[0]\_qThank you.\_q\e'
+	}
+	others {
+		ERASEVAR('res_reference')
+	}
+	}
+}
+
+//******************************************************************************
+// mouse event
+//******************************************************************************
+OnMouseDoubleClick
+{
+	if ISFUNC('sys.dc.' + reference[3]) {
+		EVAL('sys.dc.' + reference[3])
+	}
+}
+OnMouseWheel
+{
+	if !ISVAR('var.wheelcounter') {
+		var.wheelcounter = -1
+	}
+	_max = ARRAYSIZE(JitenList)
+	if !(_max > 0) { return }
+	if reference[2] > 0 {
+		var.wheelcounter++
+	} elseif reference[2] < 0 {
+		var.wheelcounter--
+	}
+	if var.wheelcounter < 0 {
+		var.wheelcounter = 0
+	} elseif var.wheelcounter >= _max {
+		var.wheelcounter = _max - 1
+	} else {
+		if ISFUNC('sys.whl.' + reference[3]) {
+			EVAL('sys.whl.' + reference[3])
+		}
+	}
+}
+
+//******************************************************************************
+// file drop event
+//******************************************************************************
+OnFileDrop2
+{
+	if ASEARCH('PlaylistMaker',installedplugin_name) >= 0 {
+		sys.fnc.RaisePlaylistMaker('OnFileDrop2',reference[0]) + '\e'
+	}
+}
+sys.fnc.RaisePlaylistMaker
+{
+	if basewarenameex  == 'SSP' {
+		_ret = "\![raiseplugin,PlaylistMaker,OnPlaylistMaker/
+			,Version=PlaylistMaker/1.0/
+			,From=ごーすとじてん/
+			,Event=%(_argv[0])"
+		for _i = 1; _i < _argc; _i++ {
+			_ret += ',' + AYATEMPLATE.EscapeTextEx(_argv[_i])
+		}
+		_ret += ']'
+		_ret
+	}
+}
+
+//******************************************************************************
+// plugin event
+//******************************************************************************
+OnBeerShower          { "\0\s[0]\_qI can't drink.\_q\e" }
+OnDive                { "\0\s[0]\_qI don't want to dive to %(reference[0]).\_q\e" }
+OnHitThunder          { '\0\s[0]\_qDisable.\_q\e' }
+OnBalloonSelectMenu   { var.BalloonSelect.Page = reference[0] }
+OnBalloonSelectCancel { ERASEVAR('var.BalloonSelect.Page') }
+
+//******************************************************************************
+// balloon change event
+//******************************************************************************
+OnBalloonChange
+{
+	if ISVAR('var.BalloonSelect.Page') {
+		if var.BalloonSelect.Page >= 0 {
+			'\![raiseplugin,BalloonSelector,OnBalloonSelectMenuOpen,' + var.BalloonSelect.Page + ']\e'
+		}
+	}
+}
+
+//******************************************************************************
+// trayballoon event
+//******************************************************************************
+OnTrayBalloonClick
+{
+	if ISFUNC('sys.tbc.' + reference[0]) {
+		EVAL('sys.tbc.' + reference[0])
+	}
+}
+
+//******************************************************************************
+// battery notice event
+//******************************************************************************
+OnBatteryLow
+{
+	if basewarenameex  == 'SSP' {
+		'\![set,trayballoon,--icon=info,--timeout=30,--title=Your battery is low./
+			,--text=Remaining Battery Level : ' + reference[0] + '%]'
+	}
+}
+OnBatteryCritical
+{
+	if basewarenameex  == 'SSP' {
+		'\![set,trayballoon,--icon=warning,--timeout=30,--title=Your battery is critical./
+			,--text=Remaining Battery Level : ' + reference[0] + '%]'
+	}
+}
+
+//******************************************************************************
+// network status event
+//******************************************************************************
+/*
+OnNetworkStatusChange
+{
+	_ret = "\![set,trayballoon,--icon=info,--timeout=30,--title=Network: %(reference[0])."
+	if reference[1] != '' {
+		_IPA = SPLIT(reference[1],CHR(0x1))
+		foreach _IPA; _IP {
+			_ret += ",--text=IP: %(_IP)"
+		}
+	} else {
+		_ret += ',--text=IP: none'
+	}
+	_ret += ']'
+	_ret
+}
+*/
+//******************************************************************************
+// AYATEMPLATE UTILITY
+//******************************************************************************
+//------------------------------------------------------------------------------
+//メニュー横1行反転
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//通常メニュー
+AYATEMPLATE.MenuItem
+{
+	_linefeed = 100
+	_n = _argc
+	if _n >= 3 {
+		if GETTYPE(_argv[_n-1]) == 1 { //整数
+			_linefeed = _argv[_n-1]
+			_n -= 1
+		}
+	}
+
+	_lftext = ''
+	while _linefeed > 0 {
+		if _linefeed >= 100 {
+			_lftext += '\n'
+		}
+		else {
+			_lftext += '\n[half]'
+		}
+		_linefeed -= 100
+	}
+	
+	_lftext
+	--
+	sys.fnc.marker()
+	--
+	if basewarenameex  == 'SSP' {
+		'\__q['
+		--
+		_s = ''
+		for _i = 1 ; _i < _n-1 ; _i++ {
+			_s += AYATEMPLATE.EscapeText(_argv[_i]) + ','
+		}
+		_s += AYATEMPLATE.EscapeText(_argv[_n-1])
+		_s
+		--
+		']'
+		--
+		_r = AYATEMPLATE.MakeJustText(_argv[0],46)
+		if RE_SEARCH(_r,'["\[\]]') >= 0 {
+			REPLACE(_r,'"','""')
+		} else {
+			_r
+		}
+		--
+		'\__q'
+	} else {
+		'\q['
+		--
+		AYATEMPLATE.MakeJustText(_argv[0],46)
+		--
+		_s = ''
+		if sender == 'crow' {
+			for _i = 1; _i < _n; _i++ {
+				_s += ',' + _argv[_i]
+			}
+		} else {
+			_s += ',' + AYATEMPLATE.EscapeText(_argv[1])
+			for _i = 2; _i < _n; _i++ {
+				_s += CHR(0x1) + AYATEMPLATE.EscapeText(_argv[_i])
+			}
+		}
+		_s
+		--
+		']'
+	}
+}
+sys.fnc.marker
+{
+	if (sender == 'embryo') || (basewarenameex  == 'SSP') {
+		'\![*]'
+	} else {
+		'☆'
+	}
+}
+
+//------------------------------------------------------------------------------
+//エスケープ
+AYATEMPLATE.EscapeText
+{
+	_r = TOSTR(_argv[0])
+	if RE_SEARCH(_r,'["\[\]]') {
+		'"' + REPLACE(_r,'"','""') + '"'
+	}
+	else {
+		_r
+	}
+}
+AYATEMPLATE.EscapeTextEx
+{
+	_r = TOSTR(_argv[0])
+	if RE_SEARCH(_r,'["\[\]\\]') {
+		'"' + REPLACE(_r,'"','""') + '"'
+	}
+	else {
+		_r
+	}
+}
+
+//------------------------------------------------------------------------------
+//後ろにスペースを補完する関数
+AYATEMPLATE.MakeLongText
+{
+	_menuitem = _argv[0]
+	_len = _argv[1] - GETSTRBYTES(_menuitem,127)
+
+	if _len <= 0 {
+		_menuitem
+		return
+	}
+	
+	_space = '　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　'
+	_menuitem += SUBSTR(_space,0,_len / 2)
+	
+	if _len % 2 > 0 {
+		_menuitem += " "
+	}
+	_menuitem
+}
+
+//------------------------------------------------------------------------------
+//適当な長さで切る
+AYATEMPLATE.MakeShortText
+{
+	if _argc < 2 {
+		'';
+		return;
+	}
+	
+	_num = _argv[1] / 2
+	_len = STRLEN(_argv[0])
+	_text = ''
+	
+	if _num >= _len {
+		_argv[0]
+		return;
+	}
+	
+	_lendiff = 0
+	while 1 {
+		_text = SUBSTR(_argv[0],0,_num)
+		
+		_lendiff = GETSTRBYTES(_text,127) - _argv[1] + 1
+		if _lendiff >= 0 {
+			break;
+		}
+		_num += 1
+		if _num >= _len {
+			break;
+		}
+	}
+	
+	if _num >= _len {
+		_argv[0]
+	}
+	else {
+		_text = SUBSTR(_argv[0],0,_num - 1)
+		if _lendiff > 0 {
+			_text += '..'
+		}
+		else {
+			_text += '...'
+		}
+		_text;
+	}
+}
+
+//------------------------------------------------------------------------------
+//長さをきっちり調節
+AYATEMPLATE.MakeJustText
+{
+	_text = AYATEMPLATE.MakeLongText(_argv[0],_argv[1])
+	if _text != _argv[0] {
+		_text
+		return
+	}
+	
+	_text = AYATEMPLATE.MakeShortText(_argv[0],_argv[1])
+	_text
+}

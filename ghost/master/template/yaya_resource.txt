@@ -1,0 +1,83 @@
+//******************************************************************************
+// network update
+//******************************************************************************
+On_homeurl    { 'http://home.384.jp/evidence/update/ghostbook/' }
+On_useorigin1 { 1 }
+
+//******************************************************************************
+// SHIORI info
+//******************************************************************************
+On_name       { GETSETTING('coreinfo.name') }
+
+//******************************************************************************
+// visible custom
+//******************************************************************************
+On_portalrootbutton.visible    { 1 }
+On_recommendrootbutton.visible { 1 }
+On_updatebutton.visible        { 1 }
+On_vanishbutton.visible        { 1 }
+
+//******************************************************************************
+// recommend sites
+//******************************************************************************
+On_sakura.portalsites
+{
+	"/
+		Disc-2%(CHR(1))http://disc2.s56.xrea.com/%(CHR(1))-%(CHR(1))%(CHR(2))/
+	"
+}
+On_sakura.recommendsites
+{
+	"/
+		CyberSphere／模擬戦闘　パラメータ一覧表%(CHR(1))http://1boshi.fc2web.com/cs_pr.htm%(CHR(1))-%(CHR(1))%(CHR(2))/
+		UKADOC Project SHIORI Eventリスト（外部）%(CHR(1))http://ssp.shillest.net/ukadoc/manual/list_shiori_event_ex.html#OnRequestValues%(CHR(1))-%(CHR(1))%(CHR(2))/
+	"
+}
+
+//******************************************************************************
+// balloon tool tip
+//******************************************************************************
+On_balloon_tooltip
+{
+	_lbl = TOSTR(reference[0])
+	_id  = TOSTR(reference[1])
+	if ISFUNC('sys.btt.' + _id) {
+		EVAL('sys.btt.' + _id)
+	} elseif ISFUNC('sys.btt.lbl.' + _lbl) {
+		EVAL('sys.btt.lbl.' + _lbl)
+	} elseif RE_MATCH(reference[1], '^https?://.+$') {
+		reference[1]
+	}
+}
+sys.btt.Menu_CANCEL
+{
+	'close'
+}
+sys.btt.ViewHelpPage
+{
+	'help'
+}
+sys.btt.DeleteData
+{
+	'delete'
+}
+sys.btt.ViewProfilePage
+{
+	'profile'
+}
+sys.btt.ViewCorrelationAnalysisPage
+{
+	'correlation analysis'
+}
+sys.btt.ViewPropertyPage
+{
+	'flip'
+}
+sys.btt.SummonGhost
+{
+	'call'
+}
+sys.btt.lbl.●
+{
+	'back'
+}

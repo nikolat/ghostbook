@@ -1,0 +1,8 @@
+charset,UTF-8
+
+descript
+{
+version,1
+maxwidth,128
+}
+

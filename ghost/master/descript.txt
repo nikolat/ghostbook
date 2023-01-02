@@ -1,0 +1,12 @@
+charset,UTF-8
+type,ghost
+name,ごーすとじてん
+sakura.name,ごーすとじてん
+kero.name,しおりはやや
+craftman,Don
+craftmanurl,http://home.384.jp/evidence/
+shiori,yaya.dll
+icon,icon.ico
+sstp.allowunspecifiedsend,0
+don't need onmousemove,1
+readme.charset,UTF-8

@@ -1,0 +1,1271 @@
+//******************************************************************************
+//マギルトリエ - バーチャルバトル 対応辞書
+//******************************************************************************
+
+//******************************************************************************
+//初期化・後始末
+//******************************************************************************
+
+OnSystemLoad.Mgl.Battle
+{
+}
+
+OnSystemUnload.Mgl.Battle
+{
+	_prm = ('GhostName','Name','TeamNumber','InjuryStatus')
+	_n   = 6
+	for _i = 0; _i < _n; _i++ {
+		foreach _prm ; _p {
+			ERASEVAR("Mgl.Battle.Entry%(_i).%(_p)")
+		}
+	}
+}
+
+// --------------------------------------------------------------------------------
+//
+// トーク
+//
+// --------------------------------------------------------------------------------
+
+// -------------------------------------------------
+//  パラメータの返信時のトーク
+// -------------------------------------------------
+/**
+ * パラメータの返信時のトーク
+ */
+パラメータの返信時
+{
+	//t("")
+}
+
+// -------------------------------------------------
+//  戦闘開始時のトーク
+// -------------------------------------------------
+
+/**
+ * 開始通知受け取り時のトーク
+ */
+開始通知受け取り時
+{
+	//t("")
+}
+
+// -------------------------------------------------
+//  自分の行動の結果が通知された時のトーク
+// -------------------------------------------------
+/**
+ * 攻撃時の相手が無傷の場合のトーク
+ * @param 相手の名前
+ */
+攻撃時の相手が無傷の場合
+{
+	//t("")
+}
+/**
+ * 攻撃時の相手が軽傷の場合のトーク
+ * @param 相手の名前
+ */
+攻撃時の相手が軽傷の場合
+{
+	//t("")
+}
+/**
+ * 攻撃時の相手が中傷の場合のトーク
+ * @param 相手の名前
+ */
+攻撃時の相手が中傷の場合
+{
+	//t("")
+}
+/**
+ * 攻撃時の相手が重傷の場合のトーク
+ * @param 相手の名前
+ */
+攻撃時の相手が重傷の場合
+{
+	//t("")
+}
+/**
+ * 攻撃時の相手が致命傷の場合のトーク
+ * @param 相手の名前
+ */
+攻撃時の相手が致命傷の場合
+{
+	//t("")
+}
+
+/**
+ * 防御した場合のトーク
+ */
+防御した場合
+{
+	//t("")
+}
+
+/**
+ * 味方の回復をした場合のトーク
+ * @param 対象の名前
+ * @param 対象の怪我の状態
+ */
+味方の回復をした場合
+{
+	if (_argv[0] != On_sakuraname)
+	{
+		//t("")
+	}
+}
+
+/**
+ * 回復された場合（自分で治した場合もある）のトーク
+ * @param 回復を行った者の名前
+ * @param 回復の行動（物理援護、魔法援護、論理援護のどれか）
+ * @param 自分の怪我の状態
+ */
+回復された場合
+{
+	if (_argv[0] == On_sakuraname)
+	{
+		//t("")
+	}
+	else
+	{
+		//t("")
+	}
+}
+
+// -------------------------------------------------
+//  自分が行動の対象にされた時のトーク
+// -------------------------------------------------
+/**
+ * 攻撃を受けた場合のトーク
+ * @param 怪我の状態(無傷、軽傷、中傷、重傷、致命傷のいずれか。無傷はダメージなし、致命傷は生命点0で行動不能の状態)
+ */
+攻撃を受けた場合
+{
+	if (_argv[0] == "無傷")
+	{
+		//t("")
+	}
+	elseif (_argv[0] == "致命傷")
+	{
+		//t("")
+	}
+	else
+	{
+		//t("")
+	}
+}
+// -------------------------------------------------
+//  戦闘終了時のトーク
+// -------------------------------------------------
+/**
+ * 勝利した場合のトーク
+ * @param* 勝利キャラクター名
+ */
+勝利時
+{
+	//t("")
+}
+
+/**
+ * 敗北した場合のトーク
+ * @param* 敗北キャラクター名
+ */
+敗北時
+{
+	//t("")
+}
+
+
+// --------------------------------------------------------------------------------
+//
+// パラメータ
+//
+// --------------------------------------------------------------------------------
+
+/**
+ * ゴースト名
+ */
+selfGhostName { "ごーすとじてん" }
+Mgl.Parameter.Ghost0.GhostName { selfGhostName }
+
+/**
+ * キャラクター名
+ */
+On_sakuraname { "ごーすとじてん" }
+Mgl.Parameter.Ghost0.Name { On_sakuraname }
+
+/**
+ * 0になると行動不能、全員0で負け
+ */
+Mgl.Parameter.Ghost0.生命点 { 70 }
+
+/**
+ * 技の使用に必要、消費する
+ */
+Mgl.Parameter.Ghost0.精神点 { 100 }
+
+/**
+ * 多いほど攻撃の際に生命点を減らせる
+ */
+Mgl.Parameter.Ghost0.物理攻撃力 { 0 }
+Mgl.Parameter.Ghost0.魔法攻撃力 { 0 }
+Mgl.Parameter.Ghost0.論理攻撃力 { 5 }
+
+/**
+ * 多いほど攻撃を受けた際の生命点減少を防げる
+ */
+Mgl.Parameter.Ghost0.物理防御力 { 0 }
+Mgl.Parameter.Ghost0.魔法防御力 { 0 }
+Mgl.Parameter.Ghost0.論理防御力 { 5 }
+
+/**
+ * 回復、補助の際の威力
+ */
+Mgl.Parameter.Ghost0.物理援護力 { 0 }
+Mgl.Parameter.Ghost0.魔法援護力 { 0 }
+Mgl.Parameter.Ghost0.論理援護力 { 50 }
+
+// -------------------------------------------------
+//  行動設定
+// -------------------------------------------------
+/**
+ * 攻撃を行う場合に、その種類を設定
+ * "物理攻撃"、"魔法攻撃"、"論理攻撃"のいずれか
+ */
+攻撃の種類
+{
+	"論理攻撃"
+}
+/**
+ * 援護を行う場合は"はい"を設定
+ * 行わない場合はそれ以外"いいえ"などを設定
+ */
+援護を行う
+{
+	"はい"
+}
+
+/**
+ * 援護を行う場合に、その種類を設定
+ * "物理援護"、"魔法援護"、"論理援護"のいずれか
+ */
+援護の種類
+{
+	"論理援護"
+}
+
+// --------------------------------------------------------------------------------
+//
+// 定義値
+//
+// --------------------------------------------------------------------------------
+
+/**
+ * 接頭辞
+ */
+Mgl.Prefix
+{
+	"Mgl"
+}
+
+/**
+ * バージョン
+ */
+Mgl.Version
+{
+	"0.01"
+}
+
+/**
+ * キャラクターのパラメータ名
+ */
+Mgl.ParamNames
+{
+	"GhostName",/
+	"Name",/
+	"生命点",/
+	"精神点",/
+	"物理攻撃力",/
+	"物理防御力",/
+	"物理援護力",/
+	"魔法攻撃力",/
+	"魔法防御力",/
+	"魔法援護力",/
+	"論理攻撃力",/
+	"論理防御力",/
+	"論理援護力",/
+}
+
+// --------------------------------------------------------------------------------
+//
+// 参加者の応答
+//
+// --------------------------------------------------------------------------------
+
+/**
+ * MglBattleイベント
+ * MglのイベントはすべてこのイベントのReferenceで処理される
+ * Reference中にはMgl用のイベント名があり、その名前で処理を行う
+ * （他のイベントと重複させない＆名称を簡素にするための仕組み）
+ * @param 
+ */
+OnMglBattle
+{
+	Mgl.ExecuteMglBattle(reference) 
+}
+
+Mgl.ExecuteMglBattle
+{
+	//_argv = REQ.ARGS
+	_keyValuePear = split("=", 2, _argv[0]);
+	if (_keyValuePear[0] == "Version" && _keyValuePear[1] == "0.01")
+	{
+		_keyValuePear = split("=", 2, _argv[2]);
+		if (_keyValuePear[0] == "Event")
+		{
+			if (ISFUNC(Mgl.Prefix + "." + _keyValuePear[1]))
+			{
+				// 送信元 + パラメータ
+				_params = (split("=", 2, _argv[1])[1], _argv[3, ARRAYSIZE(_argv)-1]);
+				
+				_ret = EVAL(Mgl.Prefix + "." + _keyValuePear[1] + "(_params)");
+				_ret
+				
+				debug("[IN]" + Mgl.Prefix + "." + _keyValuePear[1], _params)
+				debug("[OUT]" + _ret)
+			}
+			else
+			{
+				debug("イベント「" + _keyValuePear[1] + "」は未定義か、未知のイベント")
+			}
+		}
+		else
+		{
+			debug("引数の順序が異なる？")
+		}
+	}
+	else
+	{
+		debug("不明なVersion Name=" + _keyValuePear[0] + "\nValue=" + _keyValuePear[1])
+	}
+}
+
+/**
+ * パラメータを要求された
+ * パラメータを送り返す
+ */
+Mgl.OnRequestParameters
+{
+	// 送信元
+	_from = _argv[0]
+	_argv = _argv[1, ARRAYSIZE(_argv) - 1]
+
+	// 各値の名称=(各値) という配列
+	_parameters = each("_ + '=' + EVAL('Mgl.Parameter.Ghost0.' + _)", Mgl.ParamNames)
+	Mgl.Raiseother("OnGetParameters", _from, _parameters) + パラメータの返信時
+}
+
+/**
+ * 戦闘開始イベント
+ * 参加者の名前と、所属するチームの番号が送られてくる
+ * ここで保存しておいて、自分のターンの時の判断に使用する
+ * @param* 参加者情報（Name=Value形式）
+ */
+Mgl.OnStart
+{
+	// 送信元は無視
+	_argv = _argv[1, ARRAYSIZE(_argv) - 1]
+	
+	// 事前に以前のグローバル値を削除
+	for _i = 0 ; _i < 6 ; _i++
+	{
+		if (ISVAR("Mgl.Battle.Entry" + _i + ".GhostName"))
+		{
+			void each("ERASEVAR('Mgl.Battle.Entry' + %(_i) + '.' + _)", Mgl.ParamNames)
+			ERASEVAR('Mgl.Battle.Entry' + _i + '.TeamNumber')
+		}
+	}
+
+	// 各値をグローバル変数に保持
+	foreach _argv ; _arg
+	{
+		_keyAndValue = split("=", _arg)
+		EVAL("Mgl.Battle." + _keyAndValue[0] + "='" + _keyAndValue[1] + "'")
+	}
+	
+	// 存在する参加者に関して無傷を設定
+	for _i = 0 ; _i < 6 ; _i++
+	{
+		if (ISVAR("Mgl.Battle.Entry" + _i + ".GhostName"))
+		{
+			EVAL("Mgl.Battle.Entry" + _i + ".InjuryStatus = '無傷'")
+		}
+	}
+	
+	開始通知受け取り時
+}
+
+/**
+ * 自分のターンがきた場合
+ * OnGetCommandイベントを投げて行動を返す
+ * @param 送信元のゴースト名
+ * @param* 今の状態での自身の情報（Name=Value形式）と、参加者の情報
+ */
+Mgl.OnTurn
+{
+	// 各値をグローバル変数に保持
+	foreach _argv ; _arg
+	{
+		if ("Entry" _in_ _arg)
+		{
+			_keyAndValue = split("=", _arg)
+			EVAL("Mgl.Battle." + _keyAndValue[0] + "='" + _keyAndValue[1] + "'")
+		}
+		debug("[Mgl.OnTurn]", _arg)
+	}
+	
+	// 引数から対象のキャラクター名を取得
+	_name = split("=", findIf("STRSTR(_, 'Name=', 0) == 0", _argv))[1]
+	
+	// キャラクター名から行動を決定
+	_actionAndTarget = Mgl.ActionAndTarget(_name)
+	
+	// 結果がちゃんとある？
+	if (STRLEN(_actionAndTarget[0]) >= 1 && STRLEN(_actionAndTarget[1]) >= 1 && _actionAndTarget[1] != -1)
+	{
+		_command = IARRAY
+		_command ,= "Name=" + _name;
+		_command ,= "Action=" + _actionAndTarget[0];
+		_command ,= "TargetNumber=" + _actionAndTarget[1];
+		
+	//	t(Mgl.Battle.TeamNumber(_name) + ":\n" + join("\n", _command))
+		Mgl.Raiseother("OnGetCommand", _argv[0], _command)	// 送信元に返す
+		
+		debug("[Mgl.OnTurn]", _argv[0], _command)
+	}
+	else
+	{
+		debug("行動または対象が決定されていません。")
+	}
+}
+
+/**
+ * 行動と対象を得る
+ * @param キャラクター名（\0\1などの）
+ */
+Mgl.ActionAndTarget
+{
+	// 自分のチーム番号を得る
+	_myTeamNumber = Mgl.Battle.TeamNumber(_argv[0])
+	
+	_action = ""
+	_target = -1
+	_targetTeamNumbers = IARRAY
+	
+	// \0の行動なら
+	if (_argv[0] == On_sakuraname)
+	{
+		if (援護を行う == "はい")
+		{
+			// 自チームで重傷か致命傷のものがいれば援護に回る
+			_targetTeamNumber = -1
+			_targetTeamNumbers = Mgl.TeamEntryNumbers(_myTeamNumber)
+			foreach _targetTeamNumbers ; _
+			{
+				_status = EVAL("Mgl.Battle.Entry" + _ + ".InjuryStatus")
+				if (_status == "致命傷")
+				{
+					_target = _
+					break;
+				}
+			}
+			if (_targetTeamNumber == -1)
+			{
+				foreach _targetTeamNumbers ; _
+				{
+					_status = EVAL("Mgl.Battle.Entry" + _ + ".InjuryStatus")
+					if (_status == "重傷")
+					{
+						_target = _
+						break;
+					}
+				}
+			}
+			if (_target != -1)
+			{
+				_action = 援護の種類
+			}
+		}
+		
+		// 援護が決まってない場合、攻撃
+		// もっともダメージを受けている相手を攻撃
+		if (_target == -1)
+		{
+			if (_myTeamNumber == 0)
+			{
+				_targetTeamNumbers = Mgl.TeamEntryNumbers(1)
+			}
+			elseif (_myTeamNumber == 1)
+			{
+				_targetTeamNumbers = Mgl.TeamEntryNumbers(0)
+			}
+			else
+			{
+				debug("チーム番号が不明な値です。")
+			}
+			if (ARRAYSIZE(_targetTeamNumbers) >= 1)
+			{
+				_action = 攻撃の種類
+				_target = Mgl.DeeperInjuryStatusNumber(_targetTeamNumbers)
+			}
+		}
+		
+	}
+	
+	//t(_action + ":" + _target)
+	
+	(_action, _target)
+}
+
+/**
+ * キャラクター名によってMgl.Battle.Entryから、チーム番号（0か1）を得る
+ * 番号が見つからなかった場合 -1
+ * @param キャラクター名
+ */
+Mgl.Battle.TeamNumber
+{
+	_number = -1;
+	_i = 0;
+	while (ISVAR("Mgl.Battle.Entry" + _i + ".GhostName"))
+	{
+		if (EVAL("Mgl.Battle.Entry" + _i + ".GhostName") == selfGhostName/
+		&& EVAL("Mgl.Battle.Entry" + _i + ".Name") == _argv[0])
+		{
+			_number = EVAL("Mgl.Battle.Entry" + _i + ".TeamNumber");
+			break;
+		}
+		_i++;
+	}
+	if (_number == -1)
+	{
+		debug("自分のチーム番号が見つかりません。Mgl.Battle.Entryが初期化されていない（Mgl.OnStartが呼ばれていない）可能性があります。")
+	}
+	_number
+}
+
+/**
+ * Mgl.Battle.Entryから、番号（0か1）を得る
+ * @param ゴースト名
+ * @param キャラクター名
+ */
+Mgl.Battle.Number
+{
+	_number = -1;
+	_i = 0;
+	while (ISVAR("Mgl.Battle.Entry" + _i + ".GhostName"))
+	{
+		if (EVAL("Mgl.Battle.Entry" + _i + ".GhostName") == _argv[0]/
+		&& EVAL("Mgl.Battle.Entry" + _i + ".Name") == _argv[1])
+		{
+			_number = EVAL("Mgl.Battle.Entry" + _i + ".TeamNumber");
+			break;
+		}
+		_i++;
+	}
+	if (_number == -1)
+	{
+		debug("自分のチーム番号が見つかりません。Mgl.Battle.Entryが初期化されていない（Mgl.OnStartが呼ばれていない）可能性があります。")
+	}
+	_number
+}
+
+/**
+ * 指定したチーム番号のEntry番号の配列を得る
+ * @param チーム番号
+ */
+Mgl.TeamEntryNumbers
+{
+	_numbers = IARRAY;
+	_i = 0;
+	while (ISVAR("Mgl.Battle.Entry" + _i + ".TeamNumber"))
+	{
+		if (EVAL("Mgl.Battle.Entry" + _i + ".TeamNumber") == _argv[0])
+		{
+			_numbers ,= _i;
+		}
+		_i++;
+	}
+	if (ARRAYSIZE(_numbers) == 0)
+	{
+		debug("指定したチーム番号のEntry番号が１件もありません。Mgl.Battle.Entryが初期化されていない（Mgl.OnStartが呼ばれていない）可能性があります。")
+	}
+	_numbers
+}
+
+/**
+ * 引数で指定されたMgl.Battle.Entry中から、致命傷を除いて、もっとも傷の深いEntryの番号を得る
+ * @param* Entry番号
+ */
+Mgl.DeeperInjuryStatusNumber
+{
+	_injuryStatusNames = ("重傷", "中傷", "軽傷", "無傷")
+	
+	foreach _injuryStatusNames ; _injuryStatusName
+	{
+		foreach _argv ; _
+		{
+			_status = EVAL('Mgl.Battle.Entry' + _ + '.InjuryStatus')
+			if (_status == _injuryStatusName)
+			{
+				_
+				return;
+			}
+		}
+	}
+}
+//--------------------------------------------------------------------------------------------------------------
+
+/**
+ * 行動の結果通知
+ * @param ゴースト名
+ * @param* 結果情報（Name=Valueの形式）
+ *		ActionGhostName=行動したゴースト名
+ *		ActionName=行動したキャラクター名
+ *		ActionNumber=行動したキャラクターの参加中番号（OnStartと一致する）
+ *		Action=行動
+ *		TargetGhostName=対象のゴースト名（行動が防御の場合なし）
+ *		TargetName=対象のキャラクター名
+ *		InjuryStatus=対象者の傷の度合い（無傷、軽傷、中傷、重傷、致命傷のいずれか。致命傷は生命点0で行動不能）
+ */
+Mgl.OnTurnResult
+{
+	// 行動の結果（誰が何を誰にして、どうなった）
+	_actionGhostName = split("=", 2, findIf("STRSTR(_, 'ActionGhostName=', 0) == 0", _argv))[1]
+	_actionName = split("=", 2, findIf("STRSTR(_, 'ActionName=', 0) == 0", _argv))[1]
+//	_actionTeamNumber = split("=", 2, findIf("STRSTR(_, 'ActionTeamNumber=', 0) == 0", _argv))[1]
+//	_actionNumber = split("=", 2, findIf("STRSTR(_, 'ActionNumber=', 0) == 0", _argv))[1]
+	_action = split("=", 2, findIf("STRSTR(_, 'Action=', 0) == 0", _argv))[1]
+
+	_targetGhostName = split("=", 2, findIf("STRSTR(_, 'TargetGhostName=', 0) == 0", _argv))[1]
+	_targetName = split("=", 2, findIf("STRSTR(_, 'TargetName=', 0) == 0", _argv))[1]
+//	_targetTeamNumber = split("=", 2, findIf("STRSTR(_, 'TargetTeamNumber=', 0) == 0", _argv))[1]
+	_targetNumber = split("=", 2, findIf("STRSTR(_, 'TargetNumber=', 0) == 0", _argv))[1]
+	_injuryStatus = split("=", 2, findIf("STRSTR(_, 'InjuryStatus=', 0) == 0", _argv))[1]
+	
+	
+	// 怪我の状態を保持
+	if (STRLEN(_injuryStatus) >= 1)
+	{
+		EVAL("Mgl.Battle.Entry" + _targetNumber + ".InjuryStatus = '" + _injuryStatus + "'")
+	}
+	
+	// 自ゴーストの行動だった
+	if (_actionGhostName == selfGhostName)
+	{
+		// \0
+		if (_actionName == On_sakuraname)
+		{
+			if ("攻撃" _in_ _action)
+			{
+				EVAL("攻撃時の相手が" + _injuryStatus + "の場合(_targetName)")
+			}
+			elseif ("防御" _in_ _action)
+			{
+				防御した場合()
+			}
+			elseif ("援護" _in_ _action)
+			{
+				味方の回復をした場合(_targetName, _injuryStatus)
+			}
+			else
+			{
+				debug("不明な行動結果、行動は「" + _action + "」")
+			}
+		}
+		// \1
+		elseif (_actionName == "\1の名前")
+		{
+			
+		}
+		else
+		{
+			
+		}
+	}
+	
+	// 自ゴーストが対象だった
+	if (_targetGhostName == selfGhostName)
+	{
+		if (_targetName == On_sakuraname)
+		{
+			if ("攻撃" _in_ _action)
+			{
+				攻撃を受けた場合(_injuryStatus)
+			}
+			elseif ("援護" _in_ _action)
+			{
+				回復された場合(_actionName, _action, _injuryStatus)
+			}
+		}
+	}
+	
+	//Mgl.Battle.Number(selfGhostName, On_sakuraname)
+	
+//	t(join("\n", _argv))
+}
+
+/**
+ * 勝利通知
+ */
+Mgl.OnWin
+{
+	勝利時
+}
+
+/**
+ * 敗北通知
+ */
+Mgl.OnLose
+{
+	敗北時
+}
+
+//-----
+
+//
+//{
+// // チーム１決定
+//	t(Mgl.SelectEntrys1Menu)
+// // チーム２決定
+//	Mgl.SelectEntrys2
+//}
+
+// --------------------------------------------------------------------------------
+//
+// 共通関数
+//
+// --------------------------------------------------------------------------------
+
+/**
+ * Mgl用のraiseother
+ * イベント自体は、OnMglBattleで、ReferenceにEvent=(Mglイベント名)が入る
+ * @param 通知先（ゴースト名）
+ * @param Mglイベント名(On～)
+ * @param* Name=Valueで、イベント用のパラメータ
+ */
+Mgl.Raiseother
+{
+	"\![raiseother," + _argv[1] + ",OnMglBattle," + join(",", Mgl.EventHeader(_argv[0])) + "," + join(",", removeTop(removeTop(_argv))) + "]"
+}
+
+/**
+ * 共通ヘッダ
+ * Mgl.Raiseotherで使う
+ * @param EventName
+ */
+Mgl.EventHeader
+{
+	"Version=" + Mgl.Version,/
+	"From=" + selfGhostName,/
+	"Event=" + _argv[0]
+}
+
+/**
+ * 戦闘中に可能な行動の配列
+ */
+Mgl.Actions
+{
+	"物理攻撃",/
+	"魔法攻撃",/
+	"論理攻撃",/
+	"物理防御",/
+	"魔法防御",/
+	"論理防御",/
+	"物理援護",/
+	"魔法援護",/
+	"論理援護"
+}
+
+/**
+ * サーフェイス戻しと\e
+ * @param 文字列
+ * @return サーフェイス戻しと\eをつけた文字列
+ */
+t
+{
+	// この辺ちょっと考え直さないといけないかも
+	if (strpos("\s", _argv[0]) == 0)
+	{
+		_argv[0] + "\e"
+	}
+	elseif (strpos("\0\s", _argv[0]) == 0)
+	{
+		_argv[0] + "\e"
+	}
+	else
+	{
+		"\1\s[10]\0\s[0]" + _argv[0] + "\e"
+	}
+}
+
+// -----------------------------------------------------
+
+/**
+ * 配列の先頭を消したものを得る。
+ * @param 配列
+ * @return 先頭を除いた配列
+ */
+removeTop
+{
+	_argv[0] = IARRAY
+	_argv
+}
+
+/**
+ * 配列を結合
+ * @param 配列
+ * @return 文字列
+ */
+serial
+{
+	_ret = ""
+	foreach _argv; _line
+	{
+		_ret += _line
+	}
+	_ret
+}
+
+/**
+ * 指令した文字列で配列を結合して返す（SPLITの逆）
+ * @param 接続文字列
+ * @param 配列
+ * @return 文字列
+ */
+join
+{
+	removeTop(_argv)[0] + serial(/
+		each(dq(_argv[0]) + " + _",/
+			 removeTop(removeTop(_argv))))
+}
+
+/**
+ *
+ */
+split
+{
+	if (ARRAYSIZE(_argv) == 2)
+	{
+		SPLIT(_argv[1], _argv[0], 0)
+	}
+	elseif (ARRAYSIZE(_argv) == 3)
+	{
+		SPLIT(_argv[2], _argv[0], _argv[1])
+	}
+}
+
+/**
+ * 文字列の位置を返す
+ * @param 探す文字列
+ * @param 探す対象の文字列
+ * @param 検索開始位置。省略時は0扱い
+ */
+strpos
+{
+	if (_argv[2] >= 1)
+	{
+		STRSTR(_argv[1], _argv[0], _argv[2])
+	}
+	else
+	{
+		STRSTR(_argv[1], _argv[0], 0)
+	}
+}
+
+/**
+ * ファイルを改行で分割した配列として取得
+ * @param ファイル名
+ * @return 改行で分割した配列。失敗時空
+ */
+fileToArray
+{
+	if FOPEN(_argv[0], "r") == 0
+	{
+		SETLASTERROR()
+		return
+	}
+	
+	_lines = IARRAY
+	while (1)
+	{
+		_line = FREAD(_argv[0])
+		if _line == -1
+			break
+		_lines ,= _line;
+	}
+	FCLOSE(_argv[0]);
+	
+	_lines
+}
+/**
+ * 引数の前後に"を追加したものを得る
+ * @param 文字列
+ * @return "を追加した文字列
+ */
+dq
+{
+	CHR(34) + _argv[0] + CHR(34)
+}
+/**
+ * 「"」を得る。""内で使う時に使う。
+ * @return 「"」
+ */
+q
+{
+	CHR(34)
+}
+
+/**
+ * 関数として使用できないものを_に置換
+ * @param 対象の文字列
+ * @return 置換後の文字列
+ */
+funEsc
+{
+	RE_REPLACE(TOSTR(_argv[0]),"[ !%(CHR(0x22))%(CHR(0x25))#$&()*+,\-/:;<=>?@\[\]`{|}~]","_")
+}
+
+/**
+ * 第一引数中に第二引数以降の文字が全て含まれていればtrue
+ * @param 対象文字列
+ * @param 検索文字列
+ * @return 含むならtrue
+ */
+strinc
+{
+	foreach removeTop(_argv); _line
+	{
+		if _line !_in_ _argv[0]
+		{
+			false
+			return
+		}
+	}
+	true
+}
+
+/**
+ * 第一引数中に第二引数以降の文字が一つでも含まれていればtrue
+ * @param 対象文字列
+ * @param 検索文字列
+ * @return 含むならtrue
+ */
+stror
+{
+	foreach removeTop(_argv); _line
+	{
+		if _line _in_ _argv[0]
+		{
+			true
+			return
+		}
+	}
+	false
+}
+
+/**
+ * ファイル行単位を正規表現で検索し、最初の()に一致した部分を配列で返す
+ * @param 正規表現
+ * @param 対象のファイルパス
+ */
+grep
+{
+	_grep = IARRAY
+	_file = fileToArray(_argv[1])
+	foreach _file; _line
+	{
+		if RE_SEARCH(_line, _argv[0])
+		{
+			_grep ,= RE_GETSTR()[1]
+		}
+	}
+	_grep
+}
+
+changeList
+{
+	join("\n", grep(changeComment, changeFilePath))
+}
+changeComment
+{
+	"\*[ \t]+name\,(.+)"
+}
+changeFilePath
+{
+	"\resource\change.dic"
+}
+
+/*
+satoriTopicalizeToYaya
+{
+	_fileNames = (/
+	"\topicalize\dicOnTopicalize01"/
+	,"\topicalize\dicOnTopicalize02"/
+	,"\topicalize\dicOnTopicalize03"/
+	,"\topicalize\dicOnTopicalize04"/
+	,"\topicalize\dicOnTopicalize05"/
+	,"\topicalize\dicOnTopicalize06"/
+	,"\topicalize\dicOnTopicalize07"/
+	,"\topicalize\dicOnTopicalize08"/
+	,"\topicalize\dicOnTopicalize09"/
+	)
+	
+	foreach _fileNames ; _fileName
+	{
+		_fileArray = fileToArray(_fileName + ".txt")
+		if _fileArray == ""
+		{
+			// 例外。ここではトークに反映させてしまう。
+			"\1\s[10]※ ファイル読み込みでエラーが発生しています。\e"
+			return
+		}
+		
+		_ret = each("\0\s[0] + _ + \e", /
+			each("SATS_satoriSurfaceReplaced", /
+				each("SATS_satoriScopeReplaced", /
+					removeTop(/
+						SPLIT(/
+							serial(/
+								each("SATS_addYenN", /
+									removeIf("SATS_isSatoriComment", /
+										_fileArray))), /
+							"＊")))))
+		
+		//_ret = each("labelReplace", _ret)
+		
+		_saveFileName = _fileName + ".dic"
+		FOPEN(_saveFileName, "w")
+		FWRITE(_saveFileName, join(CHR(0x0a), _ret))
+		FCLOSE(_saveFileName)
+	}
+}
+*/
+
+/*
+labelReplace
+{
+	reg_replace("labelReplaceIn", "\\1(.+?)について話す(.+)", _argv[0])
+}
+
+
+labelReplaceIn
+{
+	_argv[1] + "について話す{" + CHR(34) + argv[2] + CHR(34) + "}"
+}
+*/
+
+/**
+ * "偽"に該当する値を返す
+ */
+false
+{
+	0
+}
+/**
+ * "真"に該当する値を返す。
+ * ※ 戻り値に使い、判定には使わない
+ * if isHoge {...} とは書いても if isHoge == true {...} とは書かない。
+ * isHogeが2や3などを返しても（0以外なら）すべて真として扱わないといけない。
+ * trueと比較すると、2 == 1 のように、偽となる可能性がある。
+ */
+true
+{
+	!false
+}
+
+/**
+ * タイマで処理を呼び出す
+ * @param 呼び出すまでに待機する秒数
+ * @param 呼び出す関数名
+ * @param* 関数の引数
+ */
+SetTimer
+{
+	Timer ,= GETSECCOUNT + _argv[0] + "," + _argv[1] + "," + join(",", removeTop(removeTop(_argv)))
+}
+
+/**
+ * タイマの解除を行う
+ * @param 解除する関数名
+ */
+DeleteTimer
+{
+	Timer ,= removeIf("split(',', _)[1] == '%(_argv[0])'", Timer)
+}
+
+/**
+ * デバッグ情報をファイルに書き出す
+ */
+debug
+{
+	_saveFileName = "debug.txt"
+	if (FSIZE(_saveFileName) >= 0)
+	{
+		void FOPEN(_saveFileName, "a")
+		FWRITE(_saveFileName, join(",", _argv))
+		FCLOSE(_saveFileName)
+	}
+}
+
+/**
+ * ユーティリティ関数
+ * おもに配列操作でありがちな処理の一般化
+ *
+ */
+
+/**
+ * 配列の各値に関数を適用したものを得る
+ * @param 引数を一つもつ関数の名前、もしくはEVALで評価可能なもので、この場合、"_"や"_i"を使えで、"_"は配列の各値、"_i"はインデックス
+ * @param 配列
+ * @return 処理後の配列
+ */
+each
+{
+	_ret = IARRAY
+	_func = _argv[0]
+	_argv[0] = IARRAY
+	
+	if (ISFUNC(_func))
+	{
+		_i = 0;
+		foreach _argv; _val
+		{
+			_ret ,= EVAL(_func + "(_val)");
+			_i++;
+		}
+	}
+	else
+	{
+		// "_"は、配列の各値
+		// EVALは展開された場所（関数）の環境を参照できるっぽい。
+		// 呼び出した関数内のローカル変数（ここでは"_"）を
+		// 呼び出し側で使うような記述ができる。
+		// 変数捕捉っぽい何か
+		// → これつかって、上のfuncの例も、ecah("func(_)", _array) ともかける。
+		//    そうすると、引数が任意の数の関数も、eachに引き渡せる。
+		_i = 0;
+		foreach _argv; _
+		{
+			_ret ,= EVAL(_func);
+			_i++;
+		}
+
+	}
+	_ret
+}
+
+/**
+ * 配列の各値を引数として関数を評価し、結果が真であるものを除いた配列を得る。（関数の結果、そうなら消す）
+ * @param 引数を一つ持ち真偽を返す関数（プレディケートのような何か）
+ * @param 配列
+ * @return 真であるものを除いた配列
+ */
+removeIf
+{
+	_ret = IARRAY
+	_func = _argv[0]
+	_argv[0] = IARRAY
+	
+	foreach _argv; _
+	{
+		if ISFUNC(_func)
+		{
+			if !EVAL(_func + "(_)")
+			{
+				_ret ,= _
+			}
+		}
+		elseif !EVAL(_func)
+		{
+			_ret ,= _
+		}
+	}
+	_ret
+}
+
+/**
+ * 配列の各値を引数として関数を評価し、最初に見つけた、結果が真であるものを返す
+ * @param 引数を一つ持ち真偽を返す関数（プレディケートのような何か）
+ * @param 配列
+ * @return 値（見つからない場合空白）
+ */
+findIf
+{
+	_func = _argv[0]
+	_argv[0] = IARRAY
+	
+	if (ISFUNC(_func))
+	{
+		foreach _argv; _
+		{
+			if (EVAL(_func + "(_)"))
+			{
+				_
+				break;
+			}
+		}
+	}
+	else
+	{
+		foreach _argv; _
+		{
+			if (EVAL(_func))
+			{
+				_
+				break;
+			}
+		}
+	}
+}
+
+
+/**
+ * 正規表現による置換処理。RE_SEARCHの置換後文字列を関数にしたバージョン
+ * 未完成
+ * @param 置換後の文字を返す関数。正規表現の一致部分の配列（RE_GETSTR()）を引数にもつ。
+ * @param 検索に使う正規表現
+ * @param 対象の文字
+ */
+reg_replace
+{
+	_ret = ""	// 戻り値、置換済みの文字列
+
+	_fnc = _argv[0] // 一致部分を受け取る関数
+	_reg = _argv[1] // 正規表現文字列
+	_trg = _argv[2] // 置換対象文字列
+	
+	while (RE_SEARCH(_trg, _reg))
+	{
+		// 不一致部分を切り出す
+		_ret += SUBSTR(_trg, 0 , RE_GETPOS()[0])
+		
+		// 一致部分は関数の適用結果とする
+		if (ISFUNC(_fnc))
+		{
+			_ret += EVAL(_fnc + "(RE_GETSTR())")
+		}
+		else
+		{
+			// _は、正規表現の()マッチ部分
+			// この部分の処理が正常かはまだ試してない
+			// 置き換えを行わないなら、第一引数は"_[0] + _[1] + _[2]..."みたいな感じ
+			void RE_GETSTR()
+			_ret += EVAL(_fnc)
+		}
+		
+		// 残り部分を、次の対象文字とする
+		_trg = SUBSTR(_trg, RE_GETPOS()[0] + RE_GETLEN()[0] , STRLEN(_trg) - RE_GETPOS()[0] + RE_GETLEN()[0])
+	}
+	_ret + _trg
+}

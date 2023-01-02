@@ -1,0 +1,4 @@
+charset,UTF-8
+type,ghost
+name,ごーすとじてん
+directory,ghostbook

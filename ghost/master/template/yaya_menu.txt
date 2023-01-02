@@ -1,0 +1,2159 @@
+//******************************************************************************
+// YAYA　ゴーストテンプレート
+// メニュー処理辞書
+//******************************************************************************
+// 他の辞書から呼び出される主なイベント
+// この辞書が無くてもゴーストとしてちゃんと起動します
+sys.dc.0  { sys.cs.OpenMenu() }
+sys.whl.0 { '\C\c' + sys.fnc.ExecuteViewPropertyPage(var.wheelcounter,0) }
+sys.cs.Menu_CANCEL
+{
+	if basewarenameex == 'SSP' {
+		'\0\s[0]\e'
+	} else {
+		'\0\s[0]\b[-1]\e'
+	}
+}
+sys.key.d
+{
+	'\![open,file,document\event_spec.txt]\e'
+}
+sys.key.m
+{
+	sys.cs.OpenMenu()
+}
+sys.key.r
+{
+	if basewarenameex == 'SSP' {
+		'\![reload,shiori]\0\s[0]\_qReloaded.\_q\e'
+	}
+}
+
+OnSystemLoad.MENU
+{
+}
+OnSystemUnload.MENU
+{
+	sys.fnc.InitializeBattleParameter()
+}
+
+//------------------------------------------------------------------------------
+//メインメニュー展開
+//------------------------------------------------------------------------------
+sys.cs.OpenMenu
+{
+	_ret = ''
+	if ARRAYSIZE(JitenList) > 0 {
+		_ret += '\_l[0,0]'
+		if basewarenameex == 'SSP' {
+			_ret += '\f[height,-1]\f[italic,true]\f[color,150,150,150]'
+			_ret += '- searching ghost data'
+			_ret += '\f[color,default]\f[italic,default]\f[height,default]'
+		} else {
+			_ret += '- searching ghost data'
+		}
+		_ret += '\_l[0,15]' + sys.fnc.Choice('データ検索　　　　','ViewProperty',0)
+	}
+	if (ghostexcount >= 1) && (basewarenameex == 'SSP') {
+		_ret += '\_l[0,30]\f[height,-1]\f[italic,true]\f[color,150,150,150]/
+			- collecting infomation/
+			\f[color,default]\f[italic,default]\f[height,default]'
+		_ret += '\_l[0,45]' + sys.fnc.Choice('データ収集（全部）','GetGhostDataParameters')
+		_ret += '\_l[120,]' + sys.fnc.Choice('データ収集（一部）','GetGhostDataProfile',0)
+	}
+	if (ghostexcount >= 2) && (basewarenameex == 'SSP') {
+		_ret += '\_l[0,60]\f[height,-1]\f[italic,true]\f[color,150,150,150]/
+			- battle game menu/
+			\f[color,default]\f[italic,default]\f[height,default]'
+		_ret += '\_l[0,75]' + sys.fnc.Choice('模擬戦闘　　　　　','SetbattleCharacter',1)
+		_ret += '\_l[120,]' + sys.fnc.Choice('タッグマッチ　　　','SetTagbattleCharacter',1)
+	}
+	_ret += '\_l[0,90]'
+	if basewarenameex == 'SSP' {
+		_ret += '\f[height,-1]\f[italic,true]\f[color,150,150,150]'
+		_ret += '- edit menu'
+		_ret += '\f[color,default]\f[italic,default]\f[height,default]'
+	} else {
+		_ret += '- edit menu'
+	}
+	_ret += '\_l[0,105]' + sys.fnc.Choice('format ghost data','FormatjitenList')
+	_ret += '\_l[120,]' + sys.fnc.Choice('clear ghost data ','ClearJitenList')
+	_ret += sys.fnc.BottunClose(250,0)
+	if ISVAR('basewarenameex') {
+		marker = "Powered by %(basewarenameex) %(basewareversion) / /
+			%(GETSETTING('coreinfo.name')) %(GETSETTING('coreinfo.version'))"
+	}
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+//******************************************************************************
+//各項目の処理内容
+//******************************************************************************
+
+//****************************
+// searching ghost data
+//****************************
+
+sys.csex.ViewProperty
+{
+	_scope = reference[0]
+	_ret   = ''
+	_ret  += sys.fnc.Title('searching ghost data')
+	_ret  += '\_l[0,15]' + sys.fnc.Choice('すべて表示','SerchJitenList','All',0)
+	_ret  += '\_l[80,15]' + sys.fnc.Choice('ゴースト名検索','SerchJitenList','name',0)
+	if basewarenameex == 'SSP' {
+		_ret += '\f[height,-2]'
+		_ret += '\_l[0,40]'    + sys.fnc.ViewPropertyMode(_scope,'\\0検索',0)
+		_ret += '\_l[60,40]'   + sys.fnc.ViewPropertyMode(_scope,'\\1検索',1)
+		_ret += '\_l[120,40]'  + sys.fnc.ViewPropertyMode(_scope,'\\2検索',2)
+//		_ret += '\_l[180,40]'  + sys.fnc.ViewPropertyMode(_scope,'全検索' ,-1)
+		_ret += '\f[height,default]'
+		_ret += '\_l[0,55]'    + '\f[height,-2]【種族タイプ】\f[height,default]'
+		_ret += '\_l[0,70]'    + sys.fnc.Choice('人型　　','SearchGhost','種族タイプ',_scope,'人型')
+		_ret += '\_l[0,85]'    + sys.fnc.Choice('獣型　　','SearchGhost','種族タイプ',_scope,'獣型')
+		_ret += '\_l[0,100]'   + sys.fnc.Choice('植物型　','SearchGhost','種族タイプ',_scope,'植物型')
+		_ret += '\_l[0,115]'   + sys.fnc.Choice('不定形型','SearchGhost','種族タイプ',_scope,'不定形型')
+		_ret += '\_l[0,130]'   + sys.fnc.Choice('無機物型','SearchGhost','種族タイプ',_scope,'無機物型')
+		_ret += '\_l[120,55]'  + '\f[height,-2]【世代】\f[height,default]'
+		_ret += '\_l[120,70]'  + sys.fnc.Choice('子供　　','SearchGhost','世代'      ,_scope,'子供')
+		_ret += '\_l[120,85]'  + sys.fnc.Choice('若者　　','SearchGhost','世代'      ,_scope,'若者')
+		_ret += '\_l[120,100]' + sys.fnc.Choice('大人　　','SearchGhost','世代'      ,_scope,'大人')
+		_ret += '\_l[120,115]' + sys.fnc.Choice('老人　　','SearchGhost','世代'      ,_scope,'老人')
+		_ret += '\_l[120,130]' + sys.fnc.Choice('不明　　','SearchGhost','世代'      ,_scope,'不明')
+		_ret += '\_l[180,55]'  + '\f[height,-2]【性別】\f[height,default]'
+		_ret += '\_l[180,70]'  + sys.fnc.Choice('男性　　','SearchGhost','性別'      ,_scope,'男性')
+		_ret += '\_l[180,85]'  + sys.fnc.Choice('女性　　','SearchGhost','性別'      ,_scope,'女性')
+		_ret += '\_l[180,100]' + sys.fnc.Choice('雌雄同体','SearchGhost','性別'      ,_scope,'雌雄同体')
+		_ret += '\_l[180,115]' + sys.fnc.Choice('不明　　','SearchGhost','性別'      ,_scope,'不明')
+	}
+	_ret += sys.fnc.BottunBack(220,0,'OpenMenu')
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.fnc.ViewPropertyMode
+{
+	_scope = _argv[0]
+	_label = _argv[1]
+	_mode  = _argv[2]
+	_ret   = ''
+	if _scope == _mode {
+		_ret = '\f[color,255,200,0]★\f[color,default]' + _label
+	} else {
+		_ret = sys.fnc.Choice(_label,'ViewProperty',_mode)
+	}
+	_ret
+}
+
+sys.cs.ClearJitenList
+{
+	sys.fnc.ExecuteClearJitenList()
+	_ret = ''
+	_ret += sys.fnc.Title('edit menu') + '\n\n'
+	_ret += 'All cleared.'
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.fnc.ExecuteClearJitenList
+{
+	_pa = GETVARLIST('property.')
+	foreach _pa; _p {
+		ERASEVAR(_p)
+	}
+	ERASEVAR('JitenList')
+}
+
+sys.csex.DeleteData
+{
+	_index = reference[0]
+	if !(ISINTSTR(TOSTR(_index))) { return }
+	if ARRAYSIZE(JitenList) == 1 { sys.cs.ClearJitenList; return }
+	_name = JitenList[_index]
+	_ret = ''
+	_ret += sys.fnc.Title('searching ghost data') + '\n\n'
+	_a = ('name','LIFE','STR','DEX','AGL','MIN','INT','SEN'/
+		,'キャラクター名','世代','年齢層','性別','種族','種族タイプ'/
+		,'行動タイプ','プロフィール','カード画像パス'/
+		,'好感度アイコン画像パス'/
+	)
+	for _i = 0; _i < ARRAYSIZE(_a) ; _i++ {
+		EVAL("property.0%(_a[_i])[%(_index)] = IARRAY")
+		EVAL("property.1%(_a[_i])[%(_index)] = IARRAY")
+		EVAL("property.2%(_a[_i])[%(_index)] = IARRAY")
+	}
+	_a = ('好感度','好感度マーク')
+	_a2 = ('01', '02', '0user', '10', '12', '1user', '20', '21', '2user')
+	for _i = 0; _i < ARRAYSIZE(_a) ; _i++ {
+		for _j = 0; _j < ARRAYSIZE(_a2) ; _j++ {
+			EVAL("property.%(_a2[_j])%(_a[_i])[%(_index)] = IARRAY")
+		}
+	}
+	EVAL("property.NOB[%(_index)] = IARRAY")
+	EVAL("property.name[%(_index)] = IARRAY")
+	EVAL("JitenList[%(_index)] = IARRAY")
+	_ret += "%(_name)'s data is cleared."
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.SerchJitenList
+{
+	sys.fnc.SerchJitenListExec(reference[0])
+}
+
+sys.fnc.SerchJitenListExec
+{
+	_ret = ''
+	_ret += sys.fnc.Title('searching ghost data') + '\n\n'
+	if _argv[0] == 'All' {
+		if ARRAYSIZE(JitenList) >= 7 {
+			_ret += '\b[2]'
+		}
+		if basewarenameex == 'SSP' {
+			_ret += '\f[height,-2]\f[color,100,100,100]   '
+			_ret += "Results 1 - %(ARRAYSIZE(JitenList)) for all of data"
+			_ret += '\f[color,default]\f[height,default]'
+		} else {
+			_ret += "Results 1 - %(ARRAYSIZE(JitenList)) for all of data"
+		}
+		_ret += '\n\n'
+		if (basewarenameex == 'SSP') || (sender == 'embryo') {
+			_ret += '\_n'
+		}
+		if basewarenameex == 'SSP' {
+			for _i = 0; _i < ARRAYSIZE(JitenList); _i++ {
+				_name = ''
+				if property.name[_i] != '' {
+					_name = property.name[_i]
+				} else {
+					_name = '%property[ghostlist(' + JitenList[_i] + ').name]'
+				}
+				_ret += sys.fnc.Choice(/
+					"page%(sys.fnc.FillSpace(_i + 1))\_l[75,]%(_name)"/
+					,'ViewPropertyPage',_i,0) + '\_l[55,] - \n'
+			}
+		} else {
+			for _i = 0; _i < ARRAYSIZE(JitenList); _i++ {
+				_ret += sys.fnc.Choice(/
+					"page%(sys.fnc.FillSpace(_i + 1)) - %(property.name[_i])"/
+					,'ViewPropertyPage',_i,0) + '\n'
+			}
+		}
+		if (basewarenameex == 'SSP') || (sender == 'embryo') {
+			_ret += '\_n'
+		}
+	} elseif _argv[0] == 'name' {
+		_default = ''
+		if basewarenameex == 'SSP' {
+			_default = 'Emily'
+		} elseif sender == 'embryo' {
+			_default = 'さくら'
+		}
+		_ret += 'Input word or phrase.'
+		_ret += "\![open,inputbox,SerchGhostName,0,%(_default)]"
+	}
+	_ret += sys.fnc.BottunBack(220,0,'ViewProperty,0')
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.input.SerchGhostName
+{
+	_word = TOSTR(reference[1])
+	_j    = 0
+	_ret  = ''
+	_list = JitenList
+	_n    = ARRAYSIZE(_list)
+	_space = ''
+	if basewarenameex == 'SSP' {
+		_space = '\_l[55,] - '
+	} else {
+		_space = ' - '
+	}
+	for _i = 0; _i < _n; _i++ {
+		_charaname = ''
+		_scope     = 0
+		if _word _in_ _list[_i] {
+			_charaname = _list[_i]
+		} elseif _word _in_ property.name[_i] {
+			_charaname = property.name[_i]
+		} elseif _word _in_ property.0キャラクター名[_i] {
+			_charaname = property.0キャラクター名[_i]
+		} elseif _word _in_ property.0name[_i] {
+			_charaname = property.0name[_i]
+		} elseif _word _in_ property.1キャラクター名[_i] {
+			_scope     = 1
+			_charaname = property.1キャラクター名[_i]
+		} elseif _word _in_ property.1name[_i] {
+			_scope     = 1
+			_charaname = property.1name[_i]
+		}
+		if _charaname != '' {
+			_j++
+			_ret += '\n' + sys.fnc.Choice(/
+				"page%(sys.fnc.FillSpace(_i + 1))\_l[75,]%(_charaname)"/
+				,'ViewPropertyPage',_i,_scope) + _space
+		}
+	}
+	if (basewarenameex == 'SSP') || (sender == 'embryo') {
+		_ret = '\_n' + _ret + '\_n'
+	}
+	if _j >= 7 {
+		_ret = '\b[2]' + _ret
+	}
+	if _j == 0 {
+		if basewarenameex == 'SSP' {
+			_ret = "%(sys.fnc.Title('searching ghost data'))\n\n/
+				\f[height,-2]\f[color,100,100,100]   /
+				No results found for %(_word) in ghostname./
+				\f[color,default]\f[height,default]\n\n/
+			" + _ret
+		} else {
+			_ret = "%(sys.fnc.Title('searching ghost data'))\n\n/
+				No results found for %(_word) in ghostname.\n\n" + _ret
+		}
+	} else {
+		if basewarenameex == 'SSP' {
+			_ret = "%(sys.fnc.Title('searching ghost data'))\n\n/
+				\f[height,-2]\f[color,100,100,100]   /
+				Results 1 - %(_j) for %(_word) in ghostname./
+				\f[color,default]\f[height,default]\n/
+			" + _ret
+		} else {
+			_ret = "%(sys.fnc.Title('searching ghost data'))\n\n/
+				Results 1 - %(_j) for %(_word) in ghostname.\n" + _ret
+		}
+	}
+	_ret += sys.fnc.BottunBack(220,0,'ViewProperty,0')
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.SearchGhost
+{
+	_key   = reference[0]
+	_scope = reference[1]
+	_value = reference[2]
+	_j       = 0
+	_ret     = ''
+	_list    = EVAL("property.%(_scope)%(_key)")
+	_listage = EVAL("property.%(_scope)年齢層")
+	_n       = ARRAYSIZE(_list)
+	if reference[0] == '世代' && ARRAYSIZE(_listage) > _n {
+		_n = ARRAYSIZE(_listage)
+	}
+	for _i = 0; _i < _n; _i++ {
+		if (_list[_i] == _value) || ((_key == '世代') && (_listage[_i] == _value)) {
+			_j++
+			_charaname = EVAL("property.%(_scope)name[%(_i)]")
+			_tmp.name  = EVAL("property.%(_scope)キャラクター名[%(_i)]")
+			if _tmp.name != '' {
+				_charaname = _tmp.name
+			}
+			_ret += sys.fnc.Choice(/
+				"page%(sys.fnc.FillSpace(_i+1))\_l[75,]%(_charaname)"/
+				,'ViewPropertyPage',_i,_scope) + '\_l[55,] - \n'
+		}
+	}
+	if _j >= 7 {
+		_ret = '\b[2]' + _ret
+	}
+	if _j == 0 {
+		_ret = "/
+			%(sys.fnc.Title('searching ghost data'))\n\n/
+			\f[height,-2]\f[color,100,100,100]   /
+			No results found for %(_value) in %(_scope)%(_key)/
+			\f[color,default]\f[height,default]\n\n/
+		" + _ret
+	} else {
+		_ret = "/
+			%(sys.fnc.Title('searching ghost data'))\n\n/
+			\f[height,-2]\f[color,100,100,100]   /
+			Results 1 - %(_j) for %(_value) in %(_scope)%(_key)/
+			\f[color,default]\f[height,default]\n\n/
+		" + _ret
+	}
+	_ret += sys.fnc.BottunBack(220,0,'ViewProperty,0')
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.ViewPropertyPage
+{
+	sys.fnc.ExecuteViewPropertyPage(reference[0,1])
+}
+
+sys.fnc.ExecuteViewPropertyPage
+{
+	_ret        = ''
+	_index      = _argv[0]; var.wheelcounter = _index; //mousewheelとの連動処理
+	_s          = _argv[1]
+	_u          = _s + 1
+	_u.name     = EVAL("property.%(_u)name[%(_index)]")
+	_tmp.u.name = EVAL("property.%(_u)キャラクター名[%(_index)]")
+	if _tmp.u.name != '' {
+		_u.name = _tmp.u.name
+	} elseif _u.name == '' {
+		_u          = !(_s)
+		_u.name     = EVAL("property.%(_u)name[%(_index)]")
+		_tmp.u.name = EVAL("property.%(_u)キャラクター名[%(_index)]")
+		if _tmp.u.name != '' {
+			_u.name = _tmp.u.name
+		}
+	}
+	_s.name     = EVAL("property.%(_s)name[%(_index)]")
+	_tmp.s.name = EVAL("property.%(_s)キャラクター名[%(_index)]")
+	if _tmp.s.name != '' {
+		_s.name = _tmp.s.name
+	}
+	_name = JitenList[_index]
+	_path = EVAL("property.%(_s)カード画像パス[%(_index)]")
+	if _path != '' {
+		_ret += "\_l[0,0]\_b[%(_path),centerx,centery]"
+	} elseif (0 <= _s && _s <= 2) {
+		_ret += sys.fnc.BottunPreviewGet(_index,_s)
+	}
+	_ret += '\_l[0,60]'
+	if basewarenameex == 'SSP' {
+		_ret += "\f[bold,true]【%(_s.name)】\f[bold,default]"
+	} else {
+		_ret += "【%(_s.name)】"
+	}
+	_種族       = EVAL("property.%(_s)種族[%(_index)]")
+	_種族タイプ = EVAL("property.%(_s)種族タイプ[%(_index)]")
+	_性別       = EVAL("property.%(_s)性別[%(_index)]")
+	_世代       = EVAL("property.%(_s)年齢層[%(_index)]")
+	_tmp.世代   = EVAL("property.%(_s)世代[%(_index)]")
+	if _tmp.世代 != '' {
+		_世代 = _tmp.世代
+	}
+	_行動タイプ = EVAL("property.%(_s)行動タイプ[%(_index)]")
+	if STRLEN(_種族) > 6 || !(STRSTR(_種族,'\',0) < 0) {
+		_種族 = "\__q[ViewProfilePage,%(_index),%(_s),種族]\f[color,0,0,255]\f[underline,true]/
+			read\f[underline,default]\f[color,default]\__q"
+	} elseif STRLEN(_種族) > 4 {
+		_種族 = "\f[height,%(2 - STRLEN(_種族))]%(_種族)\f[height,default]"
+	} elseif (1 <= STRLEN(_種族)) && (STRLEN(_種族) <= 2) {
+		_種族 = ' ' + _種族
+	} elseif _種族 == '' {
+		_種族 = '   -'
+	}
+	if _種族タイプ == '' {
+		_種族タイプ  = '  -'
+	} elseif !RE_MATCH(_種族タイプ,'人型|獣型|植物型|不定形型|無機物型') {
+		_種族タイプ = "\__q[ViewProfilePage,%(_index),%(_s),種族タイプ]\f[color,0,0,255]\f[underline,true]/
+			read\f[underline,default]\f[color,default]\__q"
+	}
+	if _性別 == '' {
+		_性別 = '  -'
+	} elseif !RE_MATCH(_性別,'男性|女性|雌雄同体|不明') {
+		_性別 = "\__q[ViewProfilePage,%(_index),%(_s),性別]\f[color,0,0,255]\f[underline,true]/
+			read\f[underline,default]\f[color,default]\__q"
+	}
+	if _世代 == '' {
+		_世代 = '  -'
+	} elseif !RE_MATCH(_世代,'子供|若者|大人|老人|不明') {
+		_c = '世代'
+		if EVAL("property.%(_s)世代[%(_index)]") == '' {
+			_c = '年齢層'
+		}
+		_世代 = "\__q[ViewProfilePage,%(_index),%(_s),%(_c)]\f[color,0,0,255]\f[underline,true]/
+			read\f[underline,default]\f[color,default]\__q"
+	}
+	if _行動タイプ == '' {
+		_行動タイプ = '  -'
+	} elseif !RE_MATCH(_行動タイプ,'(物理|精神)攻撃') {
+		_行動タイプ = "\__q[ViewProfilePage,%(_index),%(_s),行動タイプ]\f[color,0,0,255]\f[underline,true]/
+			read\f[underline,default]\f[color,default]\__q"
+	}
+	_LIFE = 0
+	_STR  = 0
+	_DEX  = 0
+	_AGL  = 0
+	_MIN  = 0
+	_INT  = 0
+	_SEN  = 0
+	_a    = ('LIFE','STR','DEX','AGL','MIN','INT','SEN')
+	for _i = 0; _i < ARRAYSIZE(_a); _i++ {
+		_tmp = EVAL("property.%(_s)%(_a[_i])[%(_index)]")
+		if _tmp == '' {
+			LETTONAME('_' + _a[_i],' -')
+		} elseif !ISINTSTR(TOSTR(_tmp)) {
+			LETTONAME('_' + _a[_i],"\__q[ViewProfilePage,%(_index),%(_s),%(_a[_i])]/
+				\f[color,0,0,255]\f[underline,true]/
+				read\f[underline,default]\f[color,default]\__q")
+		} else {
+			LETTONAME('_' + _a[_i],sys.fnc.ShowIrregular(sys.fnc.FillSpace2(_tmp),_tmp))
+		}
+	}
+	if basewarenameex == 'SSP' {
+		_ret += '\f[height,-1]\_l[10,295]種族\_l[50,]種族タイプ\_l[130,]/
+			性別\_l[170,]世代\_l[210,]行動タイプ\f[height,default]'
+		_ret += "\_l[0,310]%(_種族)\_l[65,]%(_種族タイプ)\_l[130,]/
+			%(_性別)\_l[170,]%(_世代)\_l[220,]%(_行動タイプ)"
+		_ret += '\f[Italic,true]\_l[0,30]/
+			LIFE\_l[40,]STR\_l[80,]DEX\_l[120,]AGL\_l[160,]MIN\_l[200,]INT\_l[240,]SEN\f[Italic,default]'
+		_ret += "\_l[0,45] /
+			%(_LIFE)\_l[40,] /
+			%(_STR)\_l[80,] /
+			%(_DEX)\_l[120,] /
+			%(_AGL)\_l[160,] /
+			%(_MIN)\_l[200,] /
+			%(_INT)\_l[240,] /
+			%(_SEN)"
+	}
+	if _index > 0 {
+		_ret += sys.fnc.BottunPageBack(135,0,"ViewPropertyPage,%(_index - 1),0")
+	}
+	if _index < ARRAYSIZE(JitenList) - 1 {
+		_ret += sys.fnc.BottunPageNext(160,0,"ViewPropertyPage,%(_index + 1),0")
+	}
+	if !(SHIORI3FW.IsGhostExist(_name)) {
+		if basewarenameex == 'SSP' {
+			if property.name[_index] != '' {
+				_ret += sys.fnc.BottunPageCall(190,0,"SummonGhost,%(property.name[_index])")
+			} else {
+				_ret += sys.fnc.BottunPageCall(190,0,"SummonGhost,%(_name)")
+			}
+		} else {
+			_ret += sys.fnc.BottunPageCall(190,0,"GOYAUTIL.InstallChange,%(property.name[_index]),ghost")
+		}
+	}
+	if _u.name != '' {
+		_ret += sys.fnc.BottunPagePartner(110,0,"ViewPropertyPage,%(_index),%(_u)")
+	}
+	if (EVAL("property.%(_s)プロフィール[%(_index)]") != '') && (basewarenameex == 'SSP') {
+		_ret += sys.fnc.BottunPageProfile(85,0,"ViewProfilePage,%(_index),%(_s),プロフィール")
+	}
+	if (basewarenameex == 'SSP') {
+		_ret += sys.fnc.BottunPageCorrelationAnalysis(60,0,"ViewCorrelationAnalysisPage,%(_index),%(_s)")
+	}
+	if basewarenameex == 'SSP' {
+		_ret += sys.fnc.BottunPageHelp(10,0,"ViewHelpPage,%(_index),%(_s)")
+	}
+	_ret += sys.fnc.BottunDeleteData(35,0,_index)
+	if basewarenameex == 'SSP' {
+		_ret += '\_l[0,330]'
+		_ret += '\f[height,-2]\f[color,70,70,70]'
+		_ret += 'page' + sys.fnc.FillSpace(_index + 1) + ' - '
+		if property.name[_index] != '' {
+			_ret += property.name[_index]
+		} else {
+			_ret += '%property[ghostlist(' + _name + ').name]'
+		}
+		_ret += '\f[color,default]\f[height,default]'
+	} else {
+		_ret += '\_l[0,330]'
+		_ret += "page%(sys.fnc.FillSpace(_index + 1)) - %(property.name[_index])"
+	}
+	_ret += sys.fnc.BottunBack(220,0,"ViewProperty,0")
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.ViewProfilePage
+{
+	_i = reference[0]
+	_s = reference[1]
+	_p = reference[2]
+	_ret = '\_q' + EVAL("property.%(_s)%(_p)[%(_i)]") + '\_q'
+	_ret += "\_l[0,315]\![*]\__q[ViewPropertyPage,%(_i),%(_s)]back\__q"
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.ViewCorrelationAnalysisPage
+{
+	_i = reference[0]
+	_s = reference[1]
+	_ret = ''
+	_imagePathB = 'image/b.png'
+
+	_a = ('0', '1', '2', 'user')
+	_ret += "\_b[" + _imagePathB + ",centerx]"
+	_selfImagePath = EVAL("property.%(_s)好感度アイコン画像パス[%(_i)]")
+	_h = 46
+	for _j = 0; _j < ARRAYSIZE(_a) ; _j++ {
+		_好感度 = EVAL("property.%(_s)%(_a[_j])好感度[%(_i)]")
+		_mark = EVAL("property.%(_s)%(_a[_j])好感度マーク[%(_i)]")
+		if _mark == '' {
+			_mark = '>'
+		}
+		_rightImagePath = EVAL("property.%(_a[_j])好感度アイコン画像パス[%(_i)]")
+		if _好感度 > 0 {
+			_ret += "\_b[" + _selfImagePath + ",30,%(_h)]"
+			_ret += "\_b[" + _rightImagePath + ",260,%(_h)]"
+			_ret += "\_l[60,%(_h - 15)]\f[height,32]"
+			for _k = 0; _k < _好感度; _k++ {
+				_ret += _mark
+			}
+			_ret += "\f[height,default]"
+			_h += 37
+		}
+	}
+
+	_ret += "\_l[0,315]\![*]\__q[ViewPropertyPage,%(_i),%(_s)]back\__q"
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.ViewHelpPage
+{
+	_index      = reference[0]
+	_s          = reference[1]
+	_u          = _s + 1
+	_u.name     = EVAL("property.%(_u)name[%(_index)]")
+	_alt.u.name = EVAL("property.%(_u)キャラクター名[%(_index)]")
+	if _alt.u.name != '' {
+		_u.name = _alt.u.name
+	}
+	if _u.name == '' {
+		_u = !(_s)
+	}
+	_name = JitenList[_index]
+	_ret = ''
+	_ret += sys.fnc.BottunPageHelp(10,10,"ViewHelpPage,%(_index),%(_s)")                    + '\_l[50,16]: Help'
+	_ret += sys.fnc.BottunDeleteData(10,30,_index)                                          + '\_l[50,36]: Delete Data'
+	_ret += sys.fnc.BottunPageProfile(10,50,"ViewProfilePage,%(_index),%(_s),プロフィール") + '\_l[50,56]: Profile'
+	_ret += sys.fnc.BottunPageCorrelationAnalysis(10,70,"ViewCorrelationAnalysisPage,%(_index),%(_s)") + '\_l[50,76]: Correlation Analysis'
+	_ret += sys.fnc.BottunPagePartner(10,90,"ViewPropertyPage,%(_index),%(_u)")             + '\_l[50,96]: Change Scope'
+	_ret += sys.fnc.BottunPageBack(10,110,"ViewPropertyPage,%(_index - 1),0")                + '\_l[50,116]: Previous Page'
+	_ret += sys.fnc.BottunPageNext(10,130,"ViewPropertyPage,%(_index + 1),0")               + '\_l[50,136]: Next Page'
+	_ret += sys.fnc.BottunPageCall(10,150,"SummonGhost,%(_name)")                           + '\_l[50,156]: Call Ghost'
+	_ret += sys.fnc.BottunBack(10,170,'ViewProperty,0')                                     + '\_l[50,176]: Go Back To Previous Menu'
+	_ret += sys.fnc.BottunClose(10,190)                                                     + '\_l[50,196]: Close'
+	_ret += "\_l[0,315]\![*]\__q[ViewPropertyPage,%(_index),%(_s)]back\__q"
+	_ret += "/
+		\_l[0,330]\f[height,-2]\f[color,70,70,70]/
+		page%(sys.fnc.FillSpace(_index + 1)) - %property[ghostlist(%(_name)).name]/
+		\f[color,default]\f[height,default]/
+	"
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+//****************************
+// collecting infomation
+//****************************
+
+sys.cs.GetGhostDataParameters
+{
+	_ret = ''
+	_ret += sys.fnc.Title('collecting infomation') + '\n\n'
+	_a1 = ('name','LIFE','STR','DEX','AGL','MIN','INT','SEN'/
+		,'キャラクター名','世代','年齢層','性別','種族','種族タイプ','行動タイプ'/
+		,'プロフィール','カード画像パス'/
+	)
+	_a2 = (('0' + _a1),('1' + _a1),('2' + _a1),'-1NOB')
+	_r = _a2[0]
+	for _i = 1; _i < ARRAYSIZE(_a2) ; _i++ {
+		_r += ',' + _a2[_i]
+	}
+	// 2021-03-08追加
+	_aex1 = ('好感度','好感度マーク')
+	_aex2 = ('01','02','0user','10','12','1user','20','21','2user')
+	for _i = 0; _i < ARRAYSIZE(_aex1) ; _i++ {
+		for _j = 0; _j < ARRAYSIZE(_aex2) ; _j++ {
+			_r += ',' + _aex2[_j] + _aex1[_i]
+		}
+	}
+	_aex1 = ('好感度アイコン画像パス')
+	_aex2 = ('0','1','2','user')
+	for _i = 0; _i < ARRAYSIZE(_aex1) ; _i++ {
+		for _j = 0; _j < ARRAYSIZE(_aex2) ; _j++ {
+			_r += ',' + _aex2[_j] + _aex1[_i]
+		}
+	}
+
+	for _i = 0; _i < ghostexcount && _i < 7; _i++ {
+		_name = ghostexlist[_i]
+		_ret += "\![*]\__q[SendOnRequestValues,%(_name),%(_r)]/
+			%property[ghostlist(%(_name)).name]/
+			\__q\n"
+	}
+	_ret += sys.fnc.BottunBack(220,0,'OpenMenu')
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.GetGhostDataProfile
+{
+	_i        = reference[0]
+	_name     = ghostexlist[_i]
+	tmp.var.i = _i	//一時保存
+	"\0\s[0]\![get,property,OnGetGhostDataProfileEx,ghostlist(%(_name)).scope.count]\e"
+}
+
+OnGetGhostDataProfileEx
+{
+	_maxscope = reference[0]
+	_i = tmp.var.i; ERASEVAR('tmp.var.i')
+	_name = ghostexlist[_i]
+	_ret = ''
+	_ret += sys.fnc.Title('collecting infomation') + '\n\n'
+	_ret += sys.fnc.SendRequestPropertyMenu(_name)
+	if _i > 0 && ghostexcount > 1 {
+		_ret += "\_l[0,290]\![*]\__q[GetGhostDataProfile,%(_i - 1)]back\__q"
+	} else {
+		_ret += '\_l[0,290]\![*]\f[color,127,127,127]back\f[color,default]'
+	}
+	if _i < ghostexcount - 1 {
+		_ret += "\_l[40,290]\![*]\__q[GetGhostDataProfile,%(_i + 1)]next\__q"
+	} else {
+		_ret += '\_l[40,290]\![*]\f[color,127,127,127]next\f[color,default]'
+	}
+	if _maxscope >= 3 {
+		_ret += "\_l[80,290]\![*]\__q[GetGhostDataProfile2,%(_i)]more\__q"
+	}
+	_ret += sys.fnc.BottunBack(220,0,'OpenMenu')
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.GetGhostDataProfile2 //\p[2]情報取得
+{
+	_i    = reference[0]
+	_name = ghostexlist[_i]
+	_ret  = ''
+	_ret += sys.fnc.Title('collecting infomation') + '\n\n'
+	_ret += sys.fnc.SendRequestPropertyMenu2(_name)
+	if _i > 0 && ghostexcount > 1 {
+		_ret += "\_l[0,290]\![*]\__q[GetGhostDataProfile,%(_i - 1)]back\__q"
+	} else {
+		_ret += '\_l[0,290]\![*]\f[color,127,127,127]back\f[color,default]'
+	}
+	if _i < ghostexcount - 1 {
+		_ret += "\_l[40,290]\![*]\__q[GetGhostDataProfile,%(_i + 1)]next\__q"
+	} else {
+		_ret += '\_l[40,290]\![*]\f[color,127,127,127]next\f[color,default]'
+	}
+	_ret += "\_l[80,290]\![*]\__q[GetGhostDataProfile,%(_i)]more\__q"
+	_ret += sys.fnc.BottunBack(220,0,'OpenMenu')
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+sys.fnc.SendRequestPropertyMenu
+{
+	_name = _argv[0]
+	_ret  = "【%property[ghostlist(%(_name)).name]】\n\n"
+	_ret += '\f[height,+3]\f[italic,true]\f[color,150,150,150]/
+		personal information about ghost/
+		\f[color,default]\f[italic,default]\f[height,default]\n\n'
+
+	_a = ('プロフィール','年齢層','性別','種族','種族タイプ','行動タイプ')
+	for _i = 0; _i < ARRAYSIZE(_a) ; _i++ {
+		_ret += "\_l[0,]\![*]\__q[SendOnRequestProperty,%(_name),0,%(_a[_i])]/
+			\\0の%(_a[_i])\__q"
+		_ret += "\_l[150,]\![*]\__q[SendOnRequestProperty,%(_name),1,%(_a[_i])]/
+			\\1の%(_a[_i])\__q\n"
+	}
+	_ret += '\n\f[height,+3]\f[italic,true]\f[color,150,150,150]/
+		status parameters for battle/
+		\f[color,default]\f[italic,default]\f[height,default]\n\n'
+	_ret += "/
+		\_l[0,]\![*]\__q[SendOnRequestProperty,%(_name),0,name]\\0の名前　　　　\__q/
+		\_l[150,]\![*]\__q[SendOnRequestProperty,%(_name),1,name]\\1の名前　　　　\__q\n/
+		\_l[0,]\![*]\__q[SendOnRequestProperty,%(_name),0,LIFE]\\0のステータス　\__q/
+		\_l[150,]\![*]\__q[SendOnRequestProperty,%(_name),1,LIFE]\\1のステータス　\__q\n/
+		\_l[0,]\![*]\__q[SendOnRequestProperty,%(_name),-1,NOB]模擬戦闘対応情報\__q\n/
+	"
+	_ret
+}
+
+sys.fnc.SendRequestPropertyMenu2 //\p[2]情報取得
+{
+	_name = _argv[0]
+	_ret  = "【%property[ghostlist(%(_name)).name]】\n\n"
+	_ret += '\f[height,+3]\f[italic,true]\f[color,150,150,150]/
+		personal information about ghost/
+		\f[color,default]\f[italic,default]\f[height,default]\n\n'
+
+	_a = ('プロフィール','年齢層','性別','種族','種族タイプ','行動タイプ')
+	for _i = 0; _i < ARRAYSIZE(_a) ; _i++ {
+		_ret += "\_l[0,]\![*]\__q[SendOnRequestProperty,%(_name),2,%(_a[_i])]/
+			\\2の%(_a[_i])\__q\n"
+	}
+	_ret += '\n\f[height,+3]\f[italic,true]\f[color,150,150,150]/
+		status parameters for battle/
+		\f[color,default]\f[italic,default]\f[height,default]\n\n'
+	_ret += "/
+		\_l[0,]\![*]\__q[SendOnRequestProperty,%(_name),2,name]\\2の名前　　　　\__q\n/
+		\_l[0,]\![*]\__q[SendOnRequestProperty,%(_name),2,LIFE]\\2のステータス　\__q\n/
+	"
+	_ret
+}
+
+//****************************
+// battle game menu
+//****************************
+
+sys.csex.SetbattleCharacter
+{
+	_ret  = ''
+	_ret += sys.fnc.Title('battle game menu') + '\n'
+	if reference[0] == 1 {
+		_ret += '\f[height,-1]\f[italic,true]\f[color,150,150,150]/
+			 - SelectCharacter/
+			\f[color,default]\f[italic,default]\f[height,default]\n\n'
+		for _i = 0; _i < ghostexcount; _i++ {
+			_name  = ghostexlist[_i]
+			_index = ASEARCH(_name,JitenList)
+			if (_index >= 0) && (property.NOB[_index] != 0) {
+				_add = 0
+				if ISINTSTR(TOSTR(property.0LIFE[_index])) && (property.0LIFE[_index] > 0) {
+					_charaname = property.0name[_index]
+					_tmp.name  = property.0キャラクター名[_index]
+					if _tmp.name != '' {
+						_charaname = _tmp.name
+					}
+					_charaname = AYATEMPLATE.MakeJustText(_charaname,14)
+					_ret += "\![*]\__q[SetbattleCharacter,2,%(_index),0]%(_charaname)\__q"
+					_add = 1
+				}
+				if ISINTSTR(TOSTR(property.1LIFE[_index])) && (property.1LIFE[_index] > 0) {
+					_charaname = property.1name[_index]
+					_tmp.name  = property.1キャラクター名[_index]
+					if _tmp.name != '' {
+						_charaname = _tmp.name
+					}
+					_charaname = AYATEMPLATE.MakeJustText(_charaname,14)
+					_ret += "\_l[100,]\![*]\__q[SetbattleCharacter,2,%(_index),1]%(_charaname)\__q"
+					_add = 1
+				}
+				if ISINTSTR(TOSTR(property.2LIFE[_index])) && (property.2LIFE[_index] > 0) {
+					_charaname = property.2name[_index]
+					_tmp.name  = property.2キャラクター名[_index]
+					if _tmp.name != '' {
+						_charaname = _tmp.name
+					}
+					_charaname = AYATEMPLATE.MakeJustText(_charaname,14)
+					_ret += "\_l[200,]\![*]\__q[SetbattleCharacter,2,%(_index),2]%(_charaname)\__q"
+					_add = 1
+				}
+				if _add == 1 {
+					_ret += '\n'
+				}
+			}
+		}
+		_ret += sys.fnc.BottunBack(220,0,'OpenMenu')
+	} else {
+		_1index = reference[1]
+		_1scope = reference[2]
+		_a = ('NAME','LIFE','STR','DEX','AGL','MIN','INT','SEN')
+		for _i = 1; _i < ARRAYSIZE(_a) ; _i++ {
+			EVAL("btl.1%(_a[_i])= property.%(_1scope)%(_a[_i])[%(_1index)]")
+		}
+		_1name = EVAL("property.%(_1scope)name[%(_1index)]")
+		_tmp.name = EVAL("property.%(_1scope)キャラクター名[_1index]")
+		if _tmp.name != '' {
+			_1name = _tmp.name
+		}
+		btl.1NAME  = _1name
+		btl.1INDEX = _1index
+		_ret += "\f[height,-1]\f[italic,true]\f[color,150,150,150]/
+			 - %(_1name) v.s./
+			\f[color,default]\f[italic,default]\f[height,default]\n\n"
+		for _i = 0; _i < ghostexcount; _i++ {
+			_2name = ghostexlist[_i]
+			_2index = ASEARCH(_2name,JitenList)
+			if (_2index >= 0) && (_2index != _1index) && (property.NOB[_2index] != 0) {
+				_add = 0
+				if ISINTSTR(TOSTR(property.0LIFE[_2index])) && (property.0LIFE[_2index] > 0) {
+					_charaname = property.0name[_2index]
+					_tmp.name  = property.0キャラクター名[_2index]
+					if _tmp.name != '' {
+						_charaname = _tmp.name
+					}
+					_charaname = AYATEMPLATE.MakeJustText(_charaname,14)
+					_ret += "\![*]\__q[JitenBattleStartEx,-1,%(_2index),0]%(_charaname)\__q"
+					_add = 1
+				}
+				if ISINTSTR(TOSTR(property.1LIFE[_2index])) && (property.1LIFE[_2index] > 0) {
+					_charaname = property.1name[_2index]
+					_tmp.name  = property.1キャラクター名[_2index]
+					if _tmp.name != '' {
+						_charaname = _tmp.name
+					}
+					_charaname = AYATEMPLATE.MakeJustText(_charaname,14)
+					_ret += "\_l[100,]\![*]\__q[JitenBattleStartEx,-1,%(_2index),1]%(_charaname)\__q"
+					_add = 1
+				}
+				if ISINTSTR(TOSTR(property.2LIFE[_2index])) && (property.2LIFE[_2index] > 0) {
+					_charaname = property.2name[_2index]
+					_tmp.name  = property.2キャラクター名[_2index]
+					if _tmp.name != '' {
+						_charaname = _tmp.name
+					}
+					_charaname = AYATEMPLATE.MakeJustText(_charaname,14)
+					_ret += "\_l[200,]\![*]\__q[JitenBattleStartEx,-1,%(_2index),2]%(_charaname)\__q"
+					_add = 1
+				}
+				if _add == 1 {
+					_ret += '\n'
+				}
+			}
+		}
+		_ret += sys.fnc.BottunBack(220,0,'SetbattleCharacter,1')
+	}
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.JitenBattleStartEx
+{
+	_ret = ''
+	_ret += sys.fnc.Title('battle game menu') + '\n'
+	_a = ('NAME','LIFE','STR','DEX','AGL','MIN','INT','SEN')
+	btl.2NAME = EVAL("property.%(reference[2])name[%(reference[1])]")
+	_tmp.name = EVAL("property.%(reference[2])キャラクター名[%(reference[1])]")
+	if _tmp.name != '' {
+		btl.2NAME = _tmp.name
+	}
+	for _i = 1; _i < ARRAYSIZE(_a); _i++ {
+		EVAL("btl.2%(_a[_i]) = property.%(reference[2])%(_a[_i])[%(reference[1])]")
+	}
+	btl.2INDEX = reference[1]
+	btl.1LMAX  = btl.1LIFE
+	btl.2LMAX  = btl.2LIFE
+	btl.1TOTAL = btl.1LIFE * 2 + btl.1STR + btl.1DEX + btl.1AGL + btl.1MIN + btl.1INT + btl.1SEN
+	btl.2TOTAL = btl.2LIFE * 2 + btl.2STR + btl.2DEX + btl.2AGL + btl.2MIN + btl.2INT + btl.2SEN
+	_ret += "/
+		【%(btl.1NAME)】\n/
+		\f[bold,true]LIFE : %(btl.1LIFE)\f[bold,default]\n/
+		STR  : %(btl.1STR)\_l[80,]DEX  : %(btl.1DEX)\_l[160,]AGL  : %(btl.1AGL)\n/
+		MIN  : %(btl.1MIN)\_l[80,]INT  : %(btl.1INT)\_l[160,]SEN  : %(btl.1SEN)\n/
+		【%(btl.2NAME)】\n/
+		\f[bold,true]LIFE : %(btl.2LIFE)\f[bold,default]\n/
+		STR  : %(btl.2STR)\_l[80,]DEX  : %(btl.2DEX)\_l[160,]AGL  : %(btl.2AGL)\n/
+		MIN  : %(btl.2MIN)\_l[80,]INT  : %(btl.2INT)\_l[160,]SEN  : %(btl.2SEN)\n/
+	"
+	_ret += AYATEMPLATE.MenuItem('模擬戦闘開始','JitenBattle',0)
+	_ret += sys.fnc.BottunClose(250,0)
+	_ret += "/
+		\![raiseother,%(JitenList[btl.1INDEX]),OnJitenBattle,ごーすとじてん/
+			,%(btl.1NAME),%(btl.2NAME),模擬戦闘開始,0,%(btl.1LIFE),%(btl.2LIFE),Normal]/
+		\![raiseother,%(JitenList[btl.2INDEX]),OnJitenBattle,ごーすとじてん/
+			,%(btl.2NAME),%(btl.1NAME),模擬戦闘開始,0,%(btl.2LIFE),%(btl.1LIFE),Normal]/
+	"
+	'\0\s[0]\b[1]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.SetTagbattleCharacter
+{
+	_ret = ''
+	_ret += sys.fnc.Title('battle game menu') + '\n'
+	if reference[0] == 1 {
+		_ret += '\f[height,-1]\f[italic,true]\f[color,150,150,150]/
+			 - SelectTeam/
+			\f[color,default]\f[italic,default]\f[height,default]\n\n'
+		for _i = 0; _i < ghostexcount && _i < 6; _i++ {
+			_name = ghostexlist[_i]
+			_index = ASEARCH(_name,JitenList)
+			if _index >= 0 {
+				if (property.0LIFE[_index] > 0) && (property.1LIFE[_index]) > 0 && (property.NOB[_index] >= 2) {
+					_0name = property.0キャラクター名[_index]; if _0name == '' {_0name = property.0name[_index] }
+					_1name = property.1キャラクター名[_index]; if _1name == '' {_1name = property.1name[_index] }
+					_charaname = AYATEMPLATE.MakeJustText(_0name + ' & ' + _1name,46)
+					_ret += "\![*]\__q[SetTagbattleCharacter,2,%(_index)]/
+						%(_charaname)\__q\n"
+				}
+			}
+		}
+		_ret += sys.fnc.BottunBack(220,0,'OpenMenu')
+	} else {
+		_a = ('NAME','LIFE','STR','DEX','AGL','MIN','INT','SEN')
+		_1index  = reference[1]
+		_1_0name = EVAL("property.0name[%(_1index)]")
+		_1_1name = EVAL("property.1name[%(_1index)]")
+		for _i = 1; _i < ARRAYSIZE(_a); _i++ {
+			EVAL("btl.1_0%(_a[_i]) = property.0%(_a[_i])[%(_1index)]")
+			EVAL("btl.1_1%(_a[_i]) = property.1%(_a[_i])[%(_1index)]")
+		}
+		_tmp.1_0name = EVAL("property.0キャラクター名[_1index]")
+		_tmp.1_1name = EVAL("property.1キャラクター名[_1index]")
+		if _tmp.1_0name != '' { _1_0name = _tmp.1_0name }
+		if _tmp.1_1name != '' { _1_1name = _tmp.1_1name }
+		btl.1_0NAME = _1_0name
+		btl.1_1NAME = _1_1name
+		btl.1INDEX  = _1index
+		_ret += "\f[height,-1]\f[italic,true]\f[color,150,150,150]/
+			 - %(_1_0name) & %(_1_1name) v.s./
+			\f[color,default]\f[italic,default]\f[height,default]\n\n"
+		for _i = 0; _i < ghostexcount && _i < 6; _i++ {
+			_2name  = ghostexlist[_i]
+			_2index = ASEARCH(_2name,JitenList)
+			if (_2index >= 0) && (_2index != _1index) {
+				if (property.0LIFE[_2index] > 0) && (property.1LIFE[_2index] > 0) && (property.NOB[_2index] >= 2) {
+					_0name = property.0キャラクター名[_2index]; if _0name == '' {_0name = property.0name[_2index] }
+					_1name = property.1キャラクター名[_2index]; if _1name == '' {_1name = property.1name[_2index] }
+					_charaname = AYATEMPLATE.MakeJustText(_0name + ' & ' + _1name,46)
+					_ret += "\![*]\__q[JitenTagBattleStartEx,-1,%(_2index)]/
+						%(_charaname)\__q\n"
+				}
+			}
+		}
+		_ret += sys.fnc.BottunBack(220,0,'SetTagbattleCharacter,1')
+	}
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.csex.JitenTagBattleStartEx
+{
+	_index = reference[1]
+	_a = ('NAME','LIFE','STR','DEX','AGL','MIN','INT','SEN')
+	btl.2_0NAME = EVAL("property.0name[%(_index)]")
+	btl.2_1NAME = EVAL("property.1name[%(_index)]")
+	for _i = 1; _i < ARRAYSIZE(_a) ; _i++ {
+		EVAL("btl.2_0%(_a[_i]) = property.0%(_a[_i])[%(_index)]")
+		EVAL("btl.2_1%(_a[_i]) = property.1%(_a[_i])[%(_index)]")
+	}
+	btl.2INDEX  = _index
+	btl.1_0LMAX = btl.1_0LIFE
+	btl.1_1LMAX = btl.1_1LIFE
+	btl.2_0LMAX = btl.2_0LIFE
+	btl.2_1LMAX = btl.2_1LIFE
+	btl.1TOTAL  = btl.1_0LIFE * 2 + btl.1_0STR + btl.1_0DEX + btl.1_0AGL + btl.1_0MIN + btl.1_0INT + btl.1_0SEN/
+				+ btl.1_1LIFE * 2 + btl.1_1STR + btl.1_1DEX + btl.1_1AGL + btl.1_1MIN + btl.1_1INT + btl.1_1SEN
+	btl.2TOTAL  = btl.2_0LIFE * 2 + btl.2_0STR + btl.2_0DEX + btl.2_0AGL + btl.2_0MIN + btl.2_0INT + btl.2_0SEN/
+				+ btl.2_1LIFE * 2 + btl.2_1STR + btl.2_1DEX + btl.2_1AGL + btl.2_1MIN + btl.2_1INT + btl.2_1SEN
+	_ret = ''
+	_ret += sys.fnc.Title('battle game menu') + '\n\n'
+	_ret += "/
+		【%(btl.1_0NAME)】\n/
+		\f[bold,true]LIFE : %(btl.1_0LIFE)\f[bold,default]\n/
+		STR  : %(btl.1_0STR)\_l[80,]DEX  : %(btl.1_0DEX)\_l[160,]AGL  : %(btl.1_0AGL)\n/
+		MIN  : %(btl.1_0MIN)\_l[80,]INT  : %(btl.1_0INT)\_l[160,]SEN  : %(btl.1_0SEN)\n\n[half]/
+		【%(btl.1_1NAME)】\n/
+		\f[bold,true]LIFE : %(btl.1_1LIFE)\f[bold,default]\n/
+		STR  : %(btl.1_1STR)\_l[80,]DEX  : %(btl.1_1DEX)\_l[160,]AGL  : %(btl.1_1AGL)\n/
+		MIN  : %(btl.1_1MIN)\_l[80,]INT  : %(btl.1_1INT)\_l[160,]SEN  : %(btl.1_1SEN)\n\n[half]/
+		【%(btl.2_0NAME)】\n/
+		\f[bold,true]LIFE : %(btl.2_0LIFE)\f[bold,default]\n/
+		STR  : %(btl.2_0STR)\_l[80,]DEX  : %(btl.2_0DEX)\_l[160,]AGL  : %(btl.2_0AGL)\n/
+		MIN  : %(btl.2_0MIN)\_l[80,]INT  : %(btl.2_0INT)\_l[160,]SEN  : %(btl.2_0SEN)\n\n[half]/
+		【%(btl.2_1NAME)】\n/
+		\f[bold,true]LIFE : %(btl.2_1LIFE)\f[bold,default]\n/
+		STR  : %(btl.2_1STR)\_l[80,]DEX  : %(btl.2_1DEX)\_l[160,]AGL  : %(btl.2_1AGL)\n/
+		MIN  : %(btl.2_1MIN)\_l[80,]INT  : %(btl.2_1INT)\_l[160,]SEN  : %(btl.2_1SEN)\n\n[half]/
+	"
+	_ret += AYATEMPLATE.MenuItem('模擬戦闘開始','JitenTagBattle',0)
+	_ret += sys.fnc.BottunClose(250,0)
+	_ret += "/
+		\![raiseother,%(JitenList[btl.1INDEX]),OnJitenTagBattle,ごーすとじてん/
+			,%(btl.2_0NAME),%(btl.2_1NAME),模擬戦闘開始,0,%(btl.2_0LIFE),%(btl.2_1LIFE),Tag]/
+		\![raiseother,%(JitenList[btl.2INDEX]),OnJitenTagBattle,ごーすとじてん/
+			,%(btl.1_0NAME),%(btl.1_1NAME),模擬戦闘開始,0,%(btl.1_0LIFE),%(btl.1_1LIFE),Tag]/
+	"
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+sys.cs.JitenBattle
+{
+	sys.fnc.SetAttackTeam(btl.1TOTAL,btl.2TOTAL,&_ATeam,&_DTeam)
+	_AtackStyle = RAND(2)	// 0 : Physical , 1 : Magical
+	sys.fnc.SetActiveParameter(/
+		EVAL("btl.%(_ATeam)DEX"),/
+		EVAL("btl.%(_DTeam)AGL"),/
+		EVAL("btl.%(_ATeam)STR"),/
+		EVAL("btl.%(_ATeam)INT"),/
+		EVAL("btl.%(_DTeam)SEN"),/
+		EVAL("btl.%(_ATeam)MIN"),/
+		_AtackStyle,/
+		&_HitProbability,/
+		&_EvadeRate,/
+		&_Power/
+	)
+	_Attacker  = EVAL("btl.%(_ATeam)NAME")
+	_Defencer  = EVAL("btl.%(_DTeam)NAME")
+	sys.fnc.ExecuteJitenBattle(/
+		_Attacker,/
+		_Defencer,/
+		_AtackStyle,/
+		_HitProbability,/
+		_EvadeRate,/
+		_Power,/
+		&_ret1,/
+		&_ret2,/
+		&_result,/
+		&_Damage/
+	)
+	EVAL("btl.%(_DTeam)LIFE -= _Damage")
+	sys.fnc.NextNormalBattleMenu(/
+		_ATeam,/
+		_DTeam,/
+		_ret1,/
+		_ret2,/
+		_result,/
+		_Damage,/
+		&_ret/
+	)
+	_ret = sys.fnc.Title('battle game menu') + '\n' + _ret + sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+
+sys.cs.JitenTagBattle
+{
+	sys.fnc.SetAttackTeam(btl.1TOTAL,btl.2TOTAL,&_ATeam,&_DTeam)
+	sys.fnc.SetActiveScope(/
+		EVAL("btl.%(_ATeam)_0LIFE"),/
+		EVAL("btl.%(_ATeam)_1LIFE"),/
+		EVAL("btl.%(_DTeam)_0LIFE"),/
+		EVAL("btl.%(_DTeam)_1LIFE"),/
+		&_AScope,/
+		&_DScope/
+	)
+	_AtackStyle = RAND(2)	// 0 : Physical , 1 : Magical
+	sys.fnc.SetActiveParameter(/
+		EVAL("btl.%(_ATeam)_%(_AScope)DEX"),/
+		EVAL("btl.%(_DTeam)_%(_DScope)AGL"),/
+		EVAL("btl.%(_ATeam)_%(_AScope)STR"),/
+		EVAL("btl.%(_ATeam)_%(_AScope)INT"),/
+		EVAL("btl.%(_DTeam)_%(_DScope)SEN"),/
+		EVAL("btl.%(_ATeam)_%(_AScope)MIN"),/
+		_AtackStyle,/
+		&_HitProbability,/
+		&_EvadeRate,/
+		&_Power/
+	)
+	_Attacker  = EVAL("btl.%(_ATeam)_%(_AScope)NAME")
+	_Defencer  = EVAL("btl.%(_DTeam)_%(_DScope)NAME")
+	sys.fnc.ExecuteJitenBattle(/
+		_Attacker,/
+		_Defencer,/
+		_AtackStyle,/
+		_HitProbability,/
+		_EvadeRate,/
+		_Power,/
+		&_ret1,/
+		&_ret2,/
+		&_result,/
+		&_Damage/
+	)
+	EVAL("btl.%(_DTeam)_%(_DScope)LIFE -= _Damage")
+	sys.fnc.NextTagBattleMenu(/
+		_ATeam,/
+		_DTeam,/
+		_AScope,/
+		_DScope,/
+		_ret1,/
+		_ret2,/
+		_result,/
+		_Damage,/
+		&_ret/
+	)
+	_ret = sys.fnc.Title('battle game menu') + '\n' + _ret + sys.fnc.BottunClose(250,0)
+	'\0\s[0]\b[2]\_q' + _ret + '\_q\e'
+}
+
+sys.fnc.SetAttackTeam
+{
+	_hoge1 = _argv[0] * _argv[0] + _argv[1] * _argv[1]
+	_hoge2 = _argv[0] * _argv[0]
+	if RAND(_hoge1) > _hoge2 {
+		_argv[2] = 1
+		_argv[3] = 2
+	} else {
+		_argv[2] = 2
+		_argv[3] = 1
+	}
+}
+
+sys.fnc.SetActiveScope
+{
+	_argv[4] = RAND(2)
+	_argv[5] = RAND(2)
+	if _argv[0] <= 0 {
+		_argv[4] = 1
+	} elseif _argv[1] <= 0 {
+		_argv[4] = 0
+	}
+	if _argv[2] <= 0 {
+		_argv[5] = 1
+	} elseif _argv[3] <= 0 {
+		_argv[5] = 0
+	}
+}
+
+sys.fnc.SetActiveParameter
+{
+	if _argv[6] == 0 {
+		_argv[7] = _argv[0]
+		_argv[8] = _argv[1]
+		_argv[9] = _argv[2]
+	} else {
+		_argv[7] = _argv[3]
+		_argv[8] = _argv[4]
+		_argv[9] = _argv[5]
+	}
+}
+
+sys.fnc.ExecuteJitenBattle
+{
+	_Attacker       = _argv[0]
+	_Defencer       = _argv[1]
+	_AtackStyle     = _argv[2]
+	_HitProbability = _argv[3]
+	_EvadeRate      = _argv[4]
+	_Power          = _argv[5]
+	_Damage         = 0
+	_AtackName      = ''
+	if _AtackStyle == 0 {
+		_AtackName = '物理'
+	} else {
+		_AtackName = '精神'
+	}
+	_result = ''
+	_ret1 = "%(_Attacker)の%(_AtackName)攻撃\n\_w[500]"
+	_ret2 = ''
+	_tmp = (RAND(18) + 1) - (RAND(5) + RAND(10))
+	if _tmp < _HitProbability {
+		_tmp = (RAND(18) + 1) + (RAND(5) + RAND(10))
+		if _tmp > _EvadeRate {
+			_tmp = RAND(8) + RAND(8) - 5
+			_Damage = (_Power + _tmp) / 4
+			if _Damage > 0 {
+				_result = "%(_AtackName)攻撃成功"
+				_ret2 = "%(_Attacker)の攻撃成功 %(_Defencer)に %(_Damage) ダメージ"
+			} else {
+				_Damage = 0
+				_result = "%(_AtackName)攻撃ミス"
+				_ret2 = "%(_Attacker)の攻撃 %(_Defencer)に 0 ダメージ"
+			}
+		} else {
+			_result = "%(_AtackName)攻撃回避"
+			_ret2 = "%(_Defencer)の回避成功"
+		}
+	} else {
+		_result = "%(_AtackName)攻撃失敗"
+		_ret2 = "%(_Attacker)の攻撃失敗 %(_Defencer)に攻撃が届かなかった"
+	}
+	_argv[6] = _ret1
+	_argv[7] = _ret2
+	_argv[8] = _result
+	_argv[9] = _Damage
+}
+
+sys.fnc.NextNormalBattleMenu
+{
+	_ATeam  = _argv[0]
+	_DTeam  = _argv[1]
+	_ret1   = _argv[2]
+	_ret2   = _argv[3]
+	_result = _argv[4]
+	_Damage = _argv[5]
+	if _Damage > 0 {
+		_ret1 += sys.fnc.DiceRollLoop(_Damage,230,90,7,50) + '\_w[500]\_l[0,0]\n\n'
+		_ret1 += ' ' + sys.fnc.shake(20, 2 * _Damage, 2 * _Damage, _Damage + 1, 0, -50) + '\_l[0,]'
+	}
+	_ret1 += _ret2 + "\_w[500]/
+			\_l[0,50]【%(btl.1NAME)】\n%(sys.fnc.ShowLifeGage(btl.1LMAX, btl.1LIFE))/
+			\n\n[half]【%(btl.2NAME)】\n%(sys.fnc.ShowLifeGage(btl.2LMAX, btl.2LIFE))"
+	// ダメージアニメ
+	if _Damage > 0 {
+		if _DTeam == 1 {
+			_ret1 += "\_l[0,50]/
+				【%(btl.1NAME)】\n%(sys.fnc.ShowLifeGageAnime(btl.1LIFE, btl.1LIFE + _Damage, btl.1LMAX))/
+				\n\n\n[half]"
+		} elseif _DTeam == 2 {
+			_ret1 += "\_l[0,50]\n\n\n[half]/
+				【%(btl.2NAME)】\n%(sys.fnc.ShowLifeGageAnime(btl.2LIFE, btl.2LIFE + _Damage, btl.2LMAX))/
+				"
+		}
+	}
+	_Attacker  = EVAL("btl.%(_ATeam)NAME")
+	_Defencer  = EVAL("btl.%(_DTeam)NAME")
+	_A_LIFE    = EVAL("btl.%(_ATeam)LIFE")
+	_D_LIFE    = EVAL("btl.%(_DTeam)LIFE")
+	_ret1 += '\![raiseother,' + JitenList[btl.1INDEX] + CHR(0x1) + JitenList[btl.2INDEX] + "/
+		,OnJitenBattle/
+		,ごーすとじてん/
+		,%(_Attacker)/
+		,%(_Defencer)/
+		,%(_result)/
+		,%(_Damage)/
+		,%(_A_LIFE)/
+		,%(_D_LIFE)/
+		,Normal/
+	]"
+	if (EVAL("btl.%(_DTeam)LIFE") <= 0) {
+		_ret1 += "\n\n[half]%(_Attacker) win."
+		sys.fnc.InitializeBattleParameter()
+	} else {
+		_ret1 += '\n\n[half]\![*]\__q[JitenBattle]模擬戦闘続行\__q'
+	}
+	_argv[6] = _ret1
+}
+
+sys.fnc.NextTagBattleMenu
+{
+	_ATeam  = _argv[0]
+	_DTeam  = _argv[1]
+	_AScope = _argv[2]
+	_DScope = _argv[3]
+	_ret1   = _argv[4]
+	_ret2   = _argv[5]
+	_result = _argv[6]
+	_Damage = _argv[7]
+	if _Damage > 0 {
+		_ret1 += sys.fnc.DiceRollLoop(_Damage,30,270,7,50) + '\_w[500]\_l[0,0]\n\n'
+	}
+	_ret1 += _ret2 + "\_w[500]/
+			\n\n[half]【%(btl.1_0NAME)】\n%(sys.fnc.ShowLifeGage(btl.1_0LMAX,btl.1_0LIFE))/
+			\n\n[half]【%(btl.1_1NAME)】\n%(sys.fnc.ShowLifeGage(btl.1_1LMAX,btl.1_1LIFE))/
+			\n\n[half]【%(btl.2_0NAME)】\n%(sys.fnc.ShowLifeGage(btl.2_0LMAX,btl.2_0LIFE))/
+			\n\n[half]【%(btl.2_1NAME)】\n%(sys.fnc.ShowLifeGage(btl.2_1LMAX,btl.2_1LIFE))"
+
+	_Attacker  = EVAL("btl.%(_ATeam)_%(_AScope)NAME")
+	_Defencer  = EVAL("btl.%(_DTeam)_%(_DScope)NAME")
+	_A_LIFE    = EVAL("btl.%(_ATeam)_%(_AScope)LIFE")
+	_D_LIFE    = EVAL("btl.%(_DTeam)_%(_DScope)LIFE")
+	_ret1 += '\![raiseother,' + JitenList[btl.1INDEX] + CHR(0x1) + JitenList[btl.2INDEX] + "/
+		,OnJitenTagBattle/
+		,ごーすとじてん/
+		,%(_Attacker)/
+		,%(_Defencer)/
+		,%(_result)/
+		,%(_Damage)/
+		,%(_A_LIFE)/
+		,%(_D_LIFE)/
+		,Tag/
+	]"
+	if (EVAL("btl.%(_DTeam)_0LIFE") <= 0) && (EVAL("btl.%(_DTeam)_1LIFE") <= 0) {
+		_ret1 += '\n\n[half]' + EVAL("btl.%(_ATeam)_0NAME") + ' and ' + EVAL("btl.%(_ATeam)_1NAME") + ' team win.'
+		sys.fnc.InitializeBattleParameter()
+	} else {
+		_ret1 += '\n\n[half]\![*]\__q[JitenTagBattle]模擬戦闘続行\__q'
+	}
+	_argv[8] = _ret1
+}
+
+sys.fnc.shake
+{
+	_w = _argv[0]; if _w < 0 { _w = 30 }
+	_x = _argv[1]; if _x < 0 { _x = 10 }
+	_y = _argv[2]; if _y < 0 { _y = 10 }
+	_n = _argv[3]; if _n < 0 { _n = 2  }
+	_ox = _argv[4]
+	_oy = _argv[5]
+
+	_ret = ''
+	for _i = 0; _i < _n; _i++ {
+		_ret += "/
+			\![set,balloonoffset,%(_x + _ox),%(_y + _oy)] \_w[%(_w)]/
+			\![set,balloonoffset,%(_x + _ox),%(-1 * _y + _oy)] \_w[%(_w)]/
+			\![set,balloonoffset,%(-1 * _x + _ox),%(_y + _oy)] \_w[%(_w)]/
+			\![set,balloonoffset,%(-1 * _x + _ox),-%(-1 * _y + _oy)] \_w[%(_w)]/
+		"
+	}
+	_ret += "\![set,balloonoffset,%(_ox),%(_oy)]\c[char,%(4 * _n)]"
+	_ret
+}
+
+sys.fnc.ShowLifeGage
+{
+	_gage = ''
+	_gage += '\f[color,0,255,0]'
+	_j = -1
+	for _i = 0; _i < _argv[1]; _i++ {
+		_j++
+		_gage += "\_l[%(9 * _j),]■"
+	}
+	if _argv[1] < 0 {
+		_argv[1] = 0
+	}
+	_gage += '\f[color,255,0,0]'
+	for _i = 0; _i < (_argv[0] - _argv[1]); _i++ {
+		_j++
+		_gage += "\_l[%(9 * _j),]■"
+	}
+	_gage += '\f[color,default]'
+	_gage
+}
+
+//classic
+sys.fnc.ShowLifeGage2
+{
+	_gage = ''
+	for _i = 0; _i < _argv[1]; _i++ {
+		_gage += '★'
+	}
+	if _argv[1] < 0 {
+		_argv[1] = 0
+	}
+	for _i = 0; _i < (_argv[0] - _argv[1]); _i++ {
+		_gage += '☆'
+	}
+	_gage
+}
+
+// animation
+sys.fnc.ShowLifeGageAnime
+{
+	_to   = _argv[0]; if _to < 0 { _to = 0 }
+	_from = _argv[1]
+	_max  = _argv[2]
+
+	_gage  = ''
+	_gage += '\f[color,255,0,0]'
+	for _i = 0; _i < _max; _i++ {
+		_gage += "\_l[%(9 * _i),]■"
+	}
+	_gage += '\f[color,0,255,0]'
+	for _i = 0; _i < _from; _i++ {
+		_gage += "\_l[%(9 * _i),]■"
+	}
+	_gage += "\_w[300]\c[char,%(_from)]"
+	_gage += '\f[color,255,255,0]'
+	for _i = 0; _i < _from; _i++ {
+		_gage += "\_l[%(9 * _i),]■"
+	}
+	for _i = 0; _i < (_from - _to); _i++ {
+		_gage += '\c[char,1]\_w[50]'
+	}
+	_gage += "\_w[100]\c[char,%(_to)]"
+	_gage += '\f[color,0,255,0]'
+	for _i = 0; _i < _to; _i++ {
+		_gage += "\_l[%(9 * _i),]■"
+	}
+	_gage += '\f[color,default]'
+	_gage
+}
+
+sys.fnc.DiceRollLoop
+{
+	_d = _argv[0]
+	_x = _argv[1]
+	_y = _argv[2]
+	_l = _argv[3]
+	_s = _argv[4]
+	_m = 0
+	_n = 0
+	_ret = ''
+	if !(_s > 0) {
+		_s = 50
+	}
+	for _i = 0; _i < _l - 2; _i++ {
+		_m = RAND(6) + 1
+		while (_m == _n) {
+			_m = RAND(6) + 1
+		}
+		_n = _m
+		_ret += sys.fnc.ShowDice(_n,_x,_y) + "\_w[%(_s)]"
+	}
+	if _l > 1 {
+		while ((_m == _n) || (_m == _d)) {
+			_m = RAND(6) + 1
+		}
+	}
+	_ret += sys.fnc.ShowDice(_m,_x,_y) + "\_w[%(_s)]"
+	_ret += sys.fnc.ShowDice(_d,_x,_y)
+	_ret
+}
+
+sys.fnc.ShowDice
+{
+	_x = IARRAY
+	_y = IARRAY
+	_ret = ''
+	if _argv[0] == 1 {
+		_x = (0,15)
+		_y = (0,17)
+	} elseif _argv[0] == 2 {
+		_x = (0,29,13)
+		_y = (0,12,30)
+	} elseif _argv[0] == 3 {
+		_x = (0,29,21,13)
+		_y = (0,12,21,30)
+	} elseif _argv[0] == 4 {
+		_x = (0,13,29,13,29)
+		_y = (0,12,12,30,30)
+	} elseif _argv[0] == 5 {
+		_x = (0,13,29,13,29,21)
+		_y = (0,12,12,30,30,21)
+	} elseif _argv[0] == 6 {
+		_x = (0,13,13,13,29,29,29)
+		_y = (0,12,21,30,12,21,30)
+	} else {
+		return
+	}
+	_x += _argv[1]
+	_y += _argv[2]
+	if _argv[0] == 1 {
+		_ret += "/
+			\f[height,50]\f[color,200,200,255]/
+			\_l[%(_x[0]),%(_y[0])]■/
+			\f[height,20]\f[color,255,0,0]/
+		"
+	} else {
+		_ret += "/
+			\f[height,50]\f[color,200,200,255]/
+			\_l[%(_x[0]),%(_y[0])]■/
+			\f[height,10]\f[color,0,0,0]/
+		"
+	}
+	for _i = 1; _i < ARRAYSIZE(_x) ; _i++ {
+		_ret += "\_l[%(_x[_i]),%(_y[_i])]●"
+	}
+	_ret += '\f[height,default]\f[color,default]'
+	_ret = "\f[shadowcolor,none]%(_ret)\f[shadowcolor,default]"
+	_ret
+}
+
+sys.fnc.InitializeBattleParameter
+{
+	_pa = GETVARLIST('btl.')
+	foreach _pa; _p {
+		ERASEVAR(_p)
+	}
+//	_va = ('NAME','LIFE','LMAX','STR','DEX','AGL','MIN','INT','SEN','TOTAL','INDEX')
+//	_pa = ('btl.1','btl.2','btl.1_0','btl.1_1','btl.2_0','btl.2_1')
+//	foreach _pa; _p {
+//		foreach _va; _v {
+//			ERASEVAR(_p + _v)
+//		}
+//	}
+}
+
+/****************************
+* edit menu
+****************************/
+
+sys.cs.FormatjitenList
+{
+	sys.fnc.ExecuteClearJitenList()
+	installedghostlist  = IARRAY
+	installedsakuralist = IARRAY
+	installedkerolist   = IARRAY
+	SHIORI3FW.StructJitenList()
+}
+OnCompleteFormatjitenList
+{
+	JitenList           = installedsakuralist
+	property.name       = installedghostlist
+	property.0name      = installedsakuralist
+	property.1name      = installedkerolist
+	ERASEVAR('installedghostlist' )
+	ERASEVAR('installedsakuralist')
+	ERASEVAR('installedkerolist'  )
+	sys.fnc.SerchJitenListExec('All',0)
+}
+
+
+//**** 自作イベント *********************************************************************
+
+//---------------------------------------------------------------------------------
+//		送信
+//---------------------------------------------------------------------------------
+
+sys.csex.SummonGhost
+{
+	"\C\0\s[0]\![call,ghost,%(AYATEMPLATE.EscapeTextEx(reference[0]))]\e"
+}
+
+sys.csex.SendOnRequestProperty
+{
+	"\0\s[0]\![raiseother,%(reference[0]),OnRequestProperty,ごーすとじてん,%(reference[1]),%(reference[2])]\e"
+}
+
+sys.csex.SendOnRequestValues
+{
+	_ret = "\![raiseother,%(reference[0]),OnRequestValues,ごーすとじてん"
+	for _i = 1; _i < ARRAYSIZE(reference); _i++ {
+		_ret += ',' + reference[_i]
+	}
+	_ret += ']'
+	'\0\s[0]' + _ret + '\e'
+}
+
+//---------------------------------------------------------------------------------
+//		受信
+//---------------------------------------------------------------------------------
+
+OnGetProperty
+{
+	_ret = ''
+	// 何故か'-1'を返してくれないゴーストが結構いるんですけど…orz
+	if (reference[1] != -1) && (reference[2] == 'NOB') {
+		if !(ISINTSTR(TOSTR(reference[1])) || reference[1] == '') || !ISINTSTR(TOSTR(reference[3])) {
+			_ret += sys.fnc.error('DebugMessage','Set Reference1 -1 and Reference3 0-2.','warning')
+			reference[3] = 0
+		} else {
+			_ret += sys.fnc.error('DebugMessage','Set Reference1 -1 .','warning')
+		}
+		reference[1] = -1
+	} elseif reference[0] == '' || reference[1] == '' || reference[2] == '' || reference[3] == '' {
+		sys.fnc.error('DebugMessage','Empty reference values are returned.','warning')
+		return
+	}
+	_name  = TOSTR(reference[0])
+	_index = ASEARCH(_name,JitenList)
+	_n     = ASEARCH(_name,ghostexlist)
+	_pa    = ('LIFE','STR','DEX','AGL','MIN','INT','SEN')
+	_next  = _pa[ASEARCH(reference[2],_pa) + 1]
+	_a     = ('name','LIFE','STR','DEX','AGL','MIN','INT','SEN'/
+		,'キャラクター名','世代','年齢層','性別','種族','種族タイプ'/
+		,'行動タイプ','プロフィール','カード画像パス','NOB'/
+	)
+	if ASEARCH(reference[2],_a) >= 0 {
+		sys.fnc.RecordProperty(reference[0],"%(reference[1])%(reference[2])=%(reference[3])")
+	}
+	if (reference[1] == -1) && (reference[2] == 'NOB') {
+		if reference[3] == 0 {
+			_ret += '非戦'
+		} elseif reference[3] == 2 {
+			_ret += 'タッグマッチ対応'
+		} else {
+			_ret += 'ノーマル'
+		}
+	} elseif !(ASEARCH(reference[2],_pa) < 0) && (reference[2] != 'SEN') {
+		_ret += "%(reference[1])%(reference[2]) : %(reference[3])\_w[40]"
+		_ret += "\![raiseother,%(reference[0]),OnRequestProperty,ごーすとじてん,%(reference[1]),%(_next)]"
+		_ret += '\e'
+	} elseif reference[2] == 'SEN' {
+		_out = 0
+		for _i = 0; _i < ARRAYSIZE(_pa); _i++ {
+			_prm = EVAL("property.%(reference[1])%(_pa[_i])[%(_index)]")
+			_ret += "%(reference[1])%(_pa[_i])=" + _prm + '\n'
+			if (_prm < 3) || (18 < _prm) {
+				_out = 1
+			}
+		}
+		if _out == 1 {
+			_ret += sys.fnc.error('DebugMessage','Parameters are expected 3 - 18.','info')
+		}
+	} else {
+		_ret += "%(reference[1])%(reference[2]) : %(reference[3])"
+	}
+	_ret += sys.fnc.BottunBack(220,0,"GetGhostDataProfile,%(_n)")
+	_ret += sys.fnc.BottunClose(250,0)
+	'\0\s[0]\_q' + _ret + '\_q\e'
+}
+sys.fnc.error
+{
+	_title = _argv[0]; if _title == '' { _title = 'error' }
+	_text  = _argv[1]; if _text == ''  { _text  = 'error' }
+	_icon  = _argv[2]; if _icon == ''  { _icon  = 'info' }
+	"\![set,trayballoon,--icon=%(_icon),--timeout=30,--title=%(_title),--text=%(_text)]"
+}
+sys.tbc.DebugMessage
+{
+}
+
+OnGetValues
+{
+	sys.fnc.RecordProperty(reference)
+	_index = ASEARCH(reference[0],JitenList)
+	sys.fnc.ExecuteViewPropertyPage(_index,0)
+}
+
+sys.fnc.RecordProperty
+{
+	_name = TOSTR(_argv[0])
+	_index = ASEARCH(_name,JitenList)
+	if !(ARRAYSIZE(JitenList) > 0) {
+		JitenList = (IARRAY,_name)
+		_index = ASEARCH(_name,JitenList)
+	} elseif _index == -1 {
+		JitenList ,= _name
+		_index = ASEARCH(_name,JitenList)
+	}
+	for _i = 1; _i < ARRAYSIZE(_argv); _i++ {
+		_array = SPLIT(_argv[_i],"=")
+		// 正しく送られてこなかった時のための保険
+		if (_array[0] != '-1NOB') && (SUBSTR(_array[0],-3,3) == 'NOB') {
+			_array[0] = '-1NOB'
+		}
+		if _array[0] == '-1NOB' {
+			if !(ARRAYSIZE(property.NOB) > 0) {
+				property.NOB = IARRAY
+			}
+			EVAL("property.NOB[%(_index)] = TOAUTO(_array[1])")
+		} else {
+			_p = EVAL("property.%(_array[0])")
+			if !(ARRAYSIZE(_p) > 0) {
+				EVAL("property.%(_array[0]) = IARRAY")
+			}
+			EVAL("property.%(_array[0])[%(_index)] = TOAUTO(_array[1])")
+		}
+	}
+}
+
+//---------------------------------------------------------------------------------
+//		レイアウト用関数
+//---------------------------------------------------------------------------------
+
+sys.fnc.Choice
+{
+	_ret = sys.fnc.marker()
+	if basewarenameex == 'SSP' {
+		_ret += '\__q[' + AYATEMPLATE.EscapeText(_argv[1])
+		for _i = 2; _i < _argc; _i++ {
+			_ret += ',' + AYATEMPLATE.EscapeText(_argv[_i])
+		}
+		_ret += ']' + _argv[0] + '\__q'
+	} else {
+		_ret += '\q['
+		if sender == 'crow' {
+			_ret += _argv[0]
+			for _i = 1; _i < _argc; _i++ {
+				_ret += ',' + _argv[_i]
+			}
+		} else {
+			_ret += AYATEMPLATE.EscapeText(_argv[0]) + ',' + AYATEMPLATE.EscapeText(_argv[1])
+			for _i = 2; _i < _argc; _i++ {
+				_ret += CHR(0x1) + AYATEMPLATE.EscapeText(_argv[_i])
+			}
+		}
+		_ret += ']'
+	}
+	_ret
+}
+
+sys.fnc.BottunBack
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,0,255,0]'
+		_ret += "\__q[%(_c)]●\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 5)]\f[bold,true]\f[color,255,255,255]\f[height,-8]←/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[←,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunClose
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,255,0,0]'
+		_ret += '\__q[Menu_CANCEL]■\__q'
+		_ret += "\_l[%(_x),%(_y)]\f[color,255,255,255]×/
+			\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += '\q[×,Menu_CANCEL]'
+	}
+	_ret
+}
+
+sys.fnc.BottunPageBack
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,0,0,255]'
+		_ret += "\__q[%(_c)]■\__q"
+		_ret += "\_l[%(_x + 5),%(_y + 5)]\f[bold,true]\f[color,255,255,255]\f[height,-8]≪/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[≪,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunPageNext
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,0,0,255]'
+		_ret += "\__q[%(_c)]■\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 5)]\f[bold,true]\f[color,255,255,255]\f[height,-8]≫/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[≫,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunPageCall
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ca  = SPLIT(_c, ',')
+	_c   = AYATEMPLATE.EscapeTextEx(_ca[0])
+	for _i = 1; _i < ARRAYSIZE(_ca); _i++ {
+		_c += ',' + AYATEMPLATE.EscapeTextEx(_ca[_i])
+	}
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,200,100,0]'
+		_ret += "\__q[%(_c)]■\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 5)]\f[bold,true]\f[color,255,255,255]\f[height,-8]♪/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[♪,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunPagePartner
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,0,0,255]'
+		_ret += "\__q[%(_c)]■\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 5)]\f[bold,true]\f[color,255,255,255]\f[height,-8]⇔/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[⇔,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunPageHelp
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,255,150,255]'
+		_ret += "\__q[%(_c)]■\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 5)]\f[bold,true]\f[color,255,255,255]\f[height,-8]？/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[？,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunPageProfile
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,255,200,100]'
+		_ret += "\__q[%(_c)]■\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 4)]\f[bold,true]\f[color,255,255,255]\f[height,-8]Ｐ/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[Ｐ,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunPageCorrelationAnalysis
+{
+	_x   = _argv[0]
+	_y   = _argv[1]
+	_c   = _argv[2]; if (basewarenameex != 'SSP') && (sender != 'crow') { _c = REPLACE(_c,',',CHR(0x1)) }
+	_ret = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,255,200,100]'
+		_ret += "\__q[%(_c)]■\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 4)]\f[bold,true]\f[color,255,255,255]\f[height,-8]Ｃ/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[Ｃ,%(_c)]"
+	}
+	_ret
+}
+
+sys.fnc.BottunPreviewGet
+{
+	_index = _argv[0]
+	_scope = _argv[1]
+	_ret   = ''
+	_ret  += "\_l[80,150]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[height,+12]\f[color,255,200,100]'
+		_ret += "\__q[PreviewGet,%(_index),%(_scope)]Get Preview\__q"
+		_ret += '\f[color,default]\f[height,default]'
+	} else {
+		_ret += "\q[Get Preview,PreviewGet,%(_index),%(_scope)]"
+	}
+	_ret
+}
+
+sys.csex.PreviewGet
+{
+	index = reference[0]
+	scope = reference[1]
+	_name = JitenList[index]
+	"\0\s[0]\![get,property,OnExecutePreviewGet,ghostlist(%(_name)).path]\e"
+}
+
+OnExecutePreviewGet
+{
+	_index  = index; ERASEVAR('index')
+	_scope  = scope; ERASEVAR('scope')
+	_path   = reference[0] + 'shell\master\'
+	_regexp = ''
+	if _scope == 0 {
+		_regexp = 'surface0+.(png|PNG)'   //surface0を取得
+	} elseif _scope == 1 {
+		_regexp = 'surface0*10.(png|PNG)' //surface10を取得
+	} elseif _scope == 2 {
+		_n = SHIORI3FW.GetChar2.Seriko.DefaultsurfaceFromDescriptTxt(reference[0])
+		if ISINTSTR(TOSTR(_n)) {
+			_regexp = "surface0*%(_n).(png|PNG)"	//\p[2]のデフォルトサーフィスを取得
+		} else {
+			sys.fnc.ExecuteViewPropertyPage(_index,scope)
+			return
+		}
+	} else {
+		return
+	}
+	_a = FENUM(_path)
+	for _i = 0; _i < ARRAYSIZE(_a); _i++ {
+		if RE_SEARCH(_a[_i],_regexp) {
+			EVAL("property.%(_scope)カード画像パス[%(_index)] = _path + _a[_i]")
+		}
+	}
+	sys.fnc.ExecuteViewPropertyPage(_index,_scope)
+}
+
+sys.fnc.BottunDeleteData
+{
+	_x     = _argv[0]
+	_y     = _argv[1]
+	_index = _argv[2]
+	_ret   = ''
+	_ret += "\_l[%(_x),%(_y)]"
+	if basewarenameex == 'SSP' {
+		_ret += '\f[shadowcolor,none]\f[height,+12]\f[color,127,0,127]'
+		_ret += "\__q[DeleteData,%(_index)]■\__q"
+		_ret += "\_l[%(_x + 4),%(_y + 4)]\f[bold,true]\f[color,255,255,255]\f[height,-8]Ｄ/
+			\f[bold,default]\f[color,default]\f[height,default]\f[shadowcolor,default]"
+	} else {
+		_ret += "\q[Ｄ,DeleteData,%(_index)]"
+	}
+	_ret
+}
+
+sys.fnc.Title
+{
+	_title = _argv[0]
+	_ret   = ''
+	if basewarenameex == 'SSP' {
+		_ret += "\_l[0,0]\f[height,-1]\f[italic,true]\f[color,150,150,150]/
+			 - %(_title)/
+			\f[color,default]\f[italic,default]\f[height,default]"
+	} else {
+		_ret += "\_l[0,0] - %(_title)"
+	}
+	_ret
+}
+
+sys.fnc.FillSpace
+{
+	_ret = ''
+	if _argv[0] < 10 {
+		_ret += '  '
+	} elseif _argv[0] < 100 {
+		_ret += ' '
+	}
+	_ret + _argv[0]
+}
+
+sys.fnc.FillSpace2
+{
+	_ret = ''
+	if _argv[0] < 10 {
+		_ret += ' '
+	}
+	_ret + _argv[0]
+}
+
+sys.fnc.ShowIrregular
+{
+	_ret = ''
+	if basewarenameex != 'SSP' {
+		_ret = _argv[0]
+	} elseif _argv[1] < 3 {
+		_ret = '\f[color,255,0,0]' + _argv[0] + '\f[color,default]'
+	} elseif _argv[1] > 18 {
+		_ret = '\f[color,0,0,255]' + _argv[0] + '\f[color,default]'
+	} else {
+		_ret = _argv[0]
+	}
+	_ret
+}
+
+
+//------------------------------------------------------------------------------
+//関数名：SHIORI3FW.StructJitenList
+//機能　：構築
+//------------------------------------------------------------------------------
+#define	SHIORI3FW.IGLIST_MAX	-1
+SHIORI3FW.StructJitenList
+{
+	if !SHIORI3FW.IGLIST_MAX; return
+
+	property.0カード画像パス = IARRAY
+	property.1カード画像パス = IARRAY
+
+	// ghostディレクトリ配下のディレクトリを抽出
+	_filelist = FENUM('..\..\..')
+	_dirlist  = IARRAY
+	foreach _filelist; _file {
+		if '\' _in_ _file; _dirlist ,= _file
+	}
+	_dirnum = ARRAYSIZE(_dirlist)
+
+	// 取得開始位置と取得数を求める
+	_num = 0
+	if SHIORI3FW.IGLIST_MAX == -1 {
+		StructGhostList.Index = 0
+		_num                  = _dirnum
+	} else {
+		if GETTYPE(StructGhostList.Index) != 1 || StructGhostList.Index >= _dirnum
+			StructGhostList.Index = 0
+		_num = SHIORI3FW.IGLIST_MAX
+		if _num > _dirnum; _num = _dirnum
+	}
+
+	StructGhostList.Dirlist = _dirlist
+	StructGhostList.Num = _num
+	StructGhostList.Index--
+	sys.fnc.StructJitenList()
+}
+sys.fnc.StructJitenList
+{
+	_dirlist = StructGhostList.Dirlist
+	// リスト作成主処理
+	for _i = StructGhostList.Index; _i < StructGhostList.Num; _i++ {
+		// 取得位置の更新
+		StructGhostList.Index++
+
+//		if StructGhostList.Index >= _dirnum; StructGhostList.Index = 0
+
+		// descript.txtから情報取得
+		_ghostname = SHIORI3FW.GetGhostNameFromDescriptTxt(/
+						'..\..\..' + _dirlist[StructGhostList.Index])
+		// リストへ追加
+		if ARRAYSIZE(_ghostname) {
+			installedghostlist  ,= _ghostname[0]
+			installedsakuralist ,= _ghostname[1]
+			installedkerolist   ,= _ghostname[2]
+			property.0カード画像パス ,= SHIORI3FW.GetShellPathFromDescriptTxt(/
+							'..\..\..' + _dirlist[StructGhostList.Index],0)
+			property.1カード画像パス ,= SHIORI3FW.GetShellPathFromDescriptTxt(/
+							'..\..\..' + _dirlist[StructGhostList.Index],10)
+		}
+		// 処理を一時中断
+		if ((_i % 50) == 0) && (StructGhostList.Num > 50) {
+			"\C\0\c\s[0]\_q%(sys.fnc.ShowStructJitenList())\_q\![raise,OnContinueStructJitenList]\e"
+			return
+		}
+	}
+	StructGhostList.Index++
+	if StructGhostList.Num > 50 {
+		"\C\0\c\s[0]\_q%(sys.fnc.ShowStructJitenList())\_q\![raise,OnCompleteFormatjitenList]\e"
+	} else {
+		"\![raise,OnCompleteFormatjitenList]\e"
+	}
+	ERASEVAR('StructGhostList.Index')
+	ERASEVAR('StructGhostList.Dirlist')
+	ERASEVAR('StructGhostList.Num')
+}
+OnContinueStructJitenList
+{
+	sys.fnc.StructJitenList()
+}
+sys.fnc.ShowStructJitenList
+{
+	_i    = StructGhostList.Index - 1
+	_n    = StructGhostList.Num
+	_ret  = ''
+	if basewarenameex == 'SSP' {
+		_now  = 30 * _i  / _n
+		_ret += '\_l[,40]'
+		_ret += sys.fnc.ShowLifeGage(30, _now)
+		_ret += "\n\n\_l[60,]\f[height,+24]/
+			%(sys.fnc.FillSpace(_i)) / /
+			%(sys.fnc.FillSpace(_n))"
+	} else {
+		_now  = 20 * _i  / _n
+		_ret += '\n\n\n'
+		_ret += sys.fnc.ShowLifeGage2(20, _now)
+		_ret += "\n\n                    /
+			%(sys.fnc.FillSpace(_i)) / /
+			%(sys.fnc.FillSpace(_n))"
+	}
+	_ret
+}
+
+//------------------------------------------------------------------------------
+//関数名：SHIORI3FW.GetShellPathFromDescriptTxt
+//機能　：descript.txtから指定されたsurfaceへの相対パスを取得します
+//引数　：_argv[0] 取得対象のゴーストディレクトリ
+//　　　：_argv[1] 取得対象のsurface番号
+//------------------------------------------------------------------------------
+SHIORI3FW.GetShellPathFromDescriptTxt
+{
+	_path = _argv[0] + '\shell\master\'
+	_regexp = "surface0*%(_argv[1]).(png|PNG)"
+	_a = FENUM(_path)
+	for _i = 0; _i < ARRAYSIZE(_a); _i++ {
+		if RE_SEARCH(_a[_i],_regexp) {
+			_path + _a[_i]
+			return
+		}
+	}
+	'-'
+}
+
+//------------------------------------------------------------------------------
+//関数名：SHIORI3FW.GetChar2.Seriko.DefaultsurfaceFromDescriptTxt
+//機能　：descript.txtからchar2.seriko.defaultsurfaceを取得します
+//引数　：_argv[0] 取得対象のゴーストディレクトリ
+//------------------------------------------------------------------------------
+SHIORI3FW.GetChar2.Seriko.DefaultsurfaceFromDescriptTxt
+{
+	if !FOPEN(_filename = "%(_argv[0])\ghost\master\descript.txt",'r')
+		return
+	_n = ''
+	_flag = 0
+	while _flag != 1 {
+		if (_line = FREAD(_filename)) == -1; _flag = 1
+
+		if CUTSPACE(_line[0]) == 'char2.seriko.defaultsurface' {
+			_n = CUTSPACE(_line[1])
+			_flag = 1
+		}
+	}
+	FCLOSE(_filename)
+
+	if !FOPEN(_filename = "%(_argv[0])\shell\master\descript.txt",'r')
+		return
+
+	_flag = 0
+	while _flag != 1 {
+		if (_line = FREAD(_filename)) == -1; _flag = 1
+
+		if CUTSPACE(_line[0]) == 'char2.seriko.defaultsurface' {
+			_n = CUTSPACE(_line[1])
+			_flag = 1
+		}
+	}
+	FCLOSE(_filename)
+
+	_n
+}
