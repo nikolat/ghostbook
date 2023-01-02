@@ -29,5 +29,5 @@ sys.key.r
 }
 On_homeurl
 {
-	'http://home.384.jp/evidence/update/ghostbook/'
+	'https://raw.githubusercontent.com/nikolat/ghostbook/main/'
 }

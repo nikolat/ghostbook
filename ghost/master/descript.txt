@@ -5,6 +5,7 @@ sakura.name,ごーすとじてん
 kero.name,しおりはやや
 craftman,Don
 craftmanurl,http://home.384.jp/evidence/
+homeurl,https://raw.githubusercontent.com/nikolat/ghostbook/main/
 shiori,yaya.dll
 icon,icon.ico
 sstp.allowunspecifiedsend,0
