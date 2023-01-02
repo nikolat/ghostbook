@@ -29,7 +29,6 @@ On_sakura.portalsites
 On_sakura.recommendsites
 {
 	"/
-		CyberSphere／模擬戦闘　パラメータ一覧表%(CHR(1))http://1boshi.fc2web.com/cs_pr.htm%(CHR(1))-%(CHR(1))%(CHR(2))/
 		UKADOC Project SHIORI Eventリスト（外部）%(CHR(1))http://ssp.shillest.net/ukadoc/manual/list_shiori_event_ex.html#OnRequestValues%(CHR(1))-%(CHR(1))%(CHR(2))/
 	"
 }
