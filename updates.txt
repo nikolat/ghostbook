@@ -8,9 +8,9 @@ file,ghost/master/icon.ico67c8ba7a52e9a4d1d8f3396d1d09bb55size=318date=2012-1
 file,ghost/master/image/b.png2533ecd828a5cc1db6207faa5c093b37size=9747date=2012-12-21T00:00:00
 file,ghost/master/system/_loading_order.txt0868241bb617c7c18013e2c024d18dd9size=18date=2012-12-21T00:00:00
 file,ghost/master/system/yaya_base/_loading_order.txt9c350c2c9c08f635bff5eaae149af8c8size=103date=2012-12-21T00:00:00
-file,ghost/master/system/yaya_base/config.dicf91d0a485f518049779991ca7476772esize=2648date=2012-12-21T00:00:00
+file,ghost/master/system/yaya_base/config.diced9161a3525e17c9f740e29fe4c131c8size=2921date=2012-12-21T00:00:00
 file,ghost/master/system/yaya_base/optional.dicff4da728a656a8aa6a38939e654c51f2size=9953date=2012-12-21T00:00:00
-file,ghost/master/system/yaya_base/shiori3.dice36a892eca5a12f24278e226a4747c3esize=51627date=2012-12-21T00:00:00
+file,ghost/master/system/yaya_base/shiori3.dic4edb806e32fd171813a9380bd5f04f64size=51771date=2012-12-21T00:00:00
 file,ghost/master/system_config.txtf4bcdc9cb5bb7b5da584e4ef9a2eed74size=625date=2012-12-21T00:00:00
 file,ghost/master/template/yaya_event.txt8dacff9147b559ec48cea643dba970d5size=19948date=2012-12-21T00:00:00
 file,ghost/master/template/yaya_menu.txtcebf01054ac795e67e4b34034a7fd2cesize=66700date=2012-12-21T00:00:00
@@ -22,7 +22,7 @@ file,ghost/master/yaya_emerg.txte65295d4b94c64171b8b9d5a90ccc584size=1061date
 file,ghost/master/yaya_emerg_dic.txtb3b6f7c3c1c0e11096b64a08bd575f80size=878date=2012-12-21T00:00:00
 file,install.txt202f6e5fce5a78af0fb496cddd9d7d78size=72date=2012-12-21T00:00:00
 file,license.txt3853e2a78a247145b4aa16667736f6desize=7047date=2012-12-21T00:00:00
-file,readme.txted193c268bebe613ff236db2d71c0b2esize=1729date=2012-12-21T00:00:00
+file,readme.txta70658fd533cc444e0026b04c3d5a83esize=1729date=2012-12-21T00:00:00
 file,shell/master/descript.txte6542423dab408ece698696a0e438313size=986date=2012-12-21T00:00:00
 file,shell/master/menu_background.pngd0f51d9a7b453d0728957e4543713798size=269date=2012-12-21T00:00:00
 file,shell/master/menu_foreground.pngb185b9c27a8b808a32cef7fde1466400size=269date=2012-12-21T00:00:00
