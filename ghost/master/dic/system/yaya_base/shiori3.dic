@@ -111,6 +111,9 @@ load
 	if ISVAR('aitalkinterval') == 0 {
 		aitalkinterval   = TALK_INTERVAL
 	}
+	if ISVAR('communicateratio') == 0 {
+		communicateratio = COM_RATIO
+	}
 	if ISVAR('ghostupmin_last') == 0 {
 		ghostupmin_last = 0
 	}
@@ -140,7 +143,7 @@ load
 	SHIORI3FW.HWndOld      = (0,0)
 	SHIORI3FW.BalloonHWnd  = (0,0)
 	SHIORI3FW.UniqueID     = ''
-	SHIORI3FW.DebugMode    = 1
+	SHIORI3FW.DebugMode    = 0
 	SHIORI3FW.CanTalkFlag  = 1
 
 	SHIORI3FW.Eventid = ''
@@ -383,9 +386,6 @@ request
 	var.req.value = IARRAY
 	var.req.rawvalue = IARRAY
 
-	_linenum = 0
-	_idparsed = 0
-
 	status = ''
 	SHIORI3FW.Eventid=''
 	SHIORI3FW.SecurityLevel='Internal'//互換性のためデフォルトはInternal
@@ -398,15 +398,6 @@ request
 		//空行もしくはみつからなかった
 		if _lineend <= _linestart {
 			break
-		}
-
-		_linenum += 1
-		if SHIORI3FW.REQUEST_LINES_LIMIT {
-			if _linenum > SHIORI3FW.REQUEST_LINES_LIMIT {
-				if _idparsed {
-					break
-				}
-			}
 		}
 
 		_lin = SUBSTR(_reqdata,_linestart,(_lineend - _linestart))
@@ -434,22 +425,6 @@ request
 			if SUBSTR(SHIORI3FW.Eventid, 0, 2) != 'On' {
 				SHIORI3FW.Eventid = 'On_' + SHIORI3FW.Eventid
 			}
-
-			if SHIORI3FW.Eventid == 'OnAiTalk' || SHIORI3FW.Eventid == 'OnAITalk' {
-				SHIORI3FW.Eventid = 'OnAITalkNewEvent'
-			}
-
-			SHIORI3FW.EventidTranslate = SHIORI3FW.TranslateEvent(SHIORI3FW.Eventid)
-
-			// ハンドラが無い場合は即返る
-			if !ISFUNC(SHIORI3FW.EventidTranslate) && !SHIORI3FW.IsImportantEvent {
-				SHIORI3FW.MakeEmptyResponse(SHIORI3FW.Eventid)
-				--
-				C_CRLF
-
-				return
-			}
-			_idparsed = 1
 		}
 		// セキュリティレベル
 		elseif _key == 'SecurityLevel' {
@@ -466,15 +441,6 @@ request
 		//Status
 		elseif _key == 'Status' {
 			status = _value
-		}
-
-		//特定のイベントを除きExternalなら204で返る
-		if SHIORI3FW.SecurityLevel == 'external' && SHIORI3FW.Eventid != 'OnXUkagakaLinkOpen' {
-			SHIORI3FW.MakeEmptyResponse
-			--
-			C_CRLF
-
-			return
 		}
 
 		// キーと値を記憶
@@ -494,6 +460,25 @@ request
 		else {
 			var.req.value ,= TOAUTOEX(_value)
 		}
+	}
+
+	if SHIORI3FW.Eventid == 'OnAiTalk' || SHIORI3FW.Eventid == 'OnAITalk' {
+		SHIORI3FW.Eventid = 'OnAITalkNewEvent'
+	}
+
+	if TOLOWER(SHIORI3FW.SecurityLevel) == 'external' {
+		SHIORI3FW.Eventid = 'ExternalEvent.' + SHIORI3FW.Eventid
+	}
+
+	SHIORI3FW.EventidTranslate = SHIORI3FW.TranslateEvent(SHIORI3FW.Eventid)
+
+	// ハンドラが無い場合は即返る
+	if !ISFUNC(SHIORI3FW.EventidTranslate) && !SHIORI3FW.IsImportantEvent {
+		SHIORI3FW.MakeEmptyResponse(SHIORI3FW.Eventid)
+		--
+		C_CRLF
+
+		return
 	}
 
 	OnRequest
@@ -894,17 +879,32 @@ SHIORI3FW.RaiseIDEvent
 SHIORI3FW.MakeEmptyResponse
 {
 	case _argv[0] {
-		when 'OnFirstBoot', 'OnBoot', 'OnWindowStateRestore', 'OnGhostChanged'
+		when 'OnFirstBoot', 'OnGhostChanged' {
+			_evt = SHIORI3FW.TranslateEvent('OnBoot')
+			if ISFUNC(_evt) {
+				//SSP側でフォールバックするのでここでは204を返す
+				"SHIORI/3.0 204 No Content%(C_CRLF)Charset: %(S_CHARSET)%(C_CRLF)"
+			}
+			else {
+				// OnBootハンドラもない時に、スコープ0/1の基本サーフィスを出す必要があるイベント
+				"SHIORI/3.0 200 OK%(C_CRLF)Sender: AYA%(C_CRLF)Charset: %(S_CHARSET)%(C_CRLF)/
+				Value: \0\s[0]\1\s[10]\e%(C_CRLF)"
+			}
+		}
+		when 'OnBoot', 'OnWindowStateRestore' {
 			// スコープ0/1の基本サーフィスを出す必要があるイベント
 			"SHIORI/3.0 200 OK%(C_CRLF)Sender: AYA%(C_CRLF)Charset: %(S_CHARSET)%(C_CRLF)/
 			Value: \0\s[0]\1\s[10]\e%(C_CRLF)"
-		when 'OnClose'
+		}
+		when 'OnClose' {
 			// 終了指示を出す必要があるイベント
 			"SHIORI/3.0 200 OK%(C_CRLF)Sender: AYA%(C_CRLF)Charset: %(S_CHARSET)%(C_CRLF)/
 			Value: \0\-\e%(C_CRLF)"
-		others
+		}
+		others {
 			// 上記以外では204を返送して良い
 			"SHIORI/3.0 204 No Content%(C_CRLF)Charset: %(S_CHARSET)%(C_CRLF)"
+		}
 	}
 }
 
@@ -1834,6 +1834,15 @@ SHIORI3EV.OnBalloonChange : void
 //------------------------------------------------------------------------------
 SHIORI3EV.OnAITalkNewEvent
 {
+	if RAND(100) < communicateratio
+	{
+		//---- communicateratio % の率で他ゴーストへ話しかけ
+		if ISFUNC('StartCommunicate') {
+			StartCommunicate
+			return
+		}
+		//else: ?
+	}
 	//互換用処理
 	_old_name = SHIORI3FW.TranslateEvent('OnAiTalk')
 	if ISFUNC(_old_name) {
