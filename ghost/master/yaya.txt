@@ -34,12 +34,8 @@ messagetxt, messagetxt/japanese.txt	// ログに記録されるエラーメッ�
 //------------------------------------------------------------------------------
 //辞書
 //------------------------------------------------------------------------------
-dic, template/yaya_event.txt
-dic, template/yaya_notify.txt
-dic, template/yaya_resource.txt
-dic, template/yaya_menu.txt
-dic, ex/yaya_property.txt			// OnGetProperty等対応
-dic, ex/yaya_mgl.txt				// マギルトリエ - バーチャルバトル等対応
+dicdir, dic/normal
+dicdir, dic/ex
 
 //------------------------------------------------------------------------------
 //セーブファイル暗号化
