@@ -7,7 +7,7 @@ file,ghost/master/dic/ex/yaya_property.dic80c8994485bc8d97ee8603bcab236188size
 file,ghost/master/dic/normal/yaya_event.dic8dacff9147b559ec48cea643dba970d5size=19948date=2012-12-21T00:00:00
 file,ghost/master/dic/normal/yaya_menu.diccebf01054ac795e67e4b34034a7fd2cesize=66700date=2012-12-21T00:00:00
 file,ghost/master/dic/normal/yaya_notify.dic38ecd76313a50fe53ee2f0f7ba829b0bsize=1893date=2012-12-21T00:00:00
-file,ghost/master/dic/normal/yaya_resource.dicc2cea743c1868a4cdab7bc43e5bf70a7size=2082date=2012-12-21T00:00:00
+file,ghost/master/dic/normal/yaya_resource.dicc9f15d1db50e22bdf5870cce1788612fsize=2091date=2012-12-21T00:00:00
 file,ghost/master/dic/system/_loading_order.txt0868241bb617c7c18013e2c024d18dd9size=18date=2012-12-21T00:00:00
 file,ghost/master/dic/system/yaya_base/_loading_order.txt9c350c2c9c08f635bff5eaae149af8c8size=103date=2012-12-21T00:00:00
 file,ghost/master/dic/system/yaya_base/config.dic44707dafa1e7e605e2816ca68c2a84f9size=2592date=2012-12-21T00:00:00
