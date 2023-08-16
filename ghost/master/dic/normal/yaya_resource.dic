@@ -23,13 +23,13 @@ On_vanishbutton.visible        { 1 }
 On_sakura.portalsites
 {
 	"/
-		Disc-2%(CHR(1))http://disc2.s56.xrea.com/%(CHR(1))-%(CHR(1))%(CHR(2))/
+		うかフィード%(CHR(1))https://feed.ukagaka.net/%(CHR(1))%(CHR(1))%(CHR(2))/
 	"
 }
 On_sakura.recommendsites
 {
 	"/
-		UKADOC Project SHIORI Eventリスト（外部）%(CHR(1))http://ssp.shillest.net/ukadoc/manual/list_shiori_event_ex.html#OnRequestValues%(CHR(1))-%(CHR(1))%(CHR(2))/
+		UKADOC Project SHIORI Eventリスト（外部）%(CHR(1))http://ssp.shillest.net/ukadoc/manual/list_shiori_event_ex.html#OnRequestValues%(CHR(1))%(CHR(1))%(CHR(2))/
 	"
 }
 
