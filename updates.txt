@@ -12,12 +12,12 @@ file,ghost/master/dic/system/_loading_order.txt0868241bb617c7c18013e2c024d18dd9
 file,ghost/master/dic/system/yaya_base/_loading_order.txt9c350c2c9c08f635bff5eaae149af8c8size=103date=2012-12-21T00:00:00
 file,ghost/master/dic/system/yaya_base/config.dic44707dafa1e7e605e2816ca68c2a84f9size=2592date=2012-12-21T00:00:00
 file,ghost/master/dic/system/yaya_base/optional.dicff4da728a656a8aa6a38939e654c51f2size=9953date=2012-12-21T00:00:00
-file,ghost/master/dic/system/yaya_base/shiori3.dic18b395e9ffcd3fb772ded9046ed4b57csize=54846date=2012-12-21T00:00:00
+file,ghost/master/dic/system/yaya_base/shiori3.dicac4750d7081a6607ac1c26184677020asize=55020date=2012-12-21T00:00:00
 file,ghost/master/document/event_spec.txt8f1d26c784fdb8e3e4a866c7bd006720size=20684date=2012-12-21T00:00:00
 file,ghost/master/icon.ico67c8ba7a52e9a4d1d8f3396d1d09bb55size=318date=2012-12-21T00:00:00
 file,ghost/master/image/b.png2533ecd828a5cc1db6207faa5c093b37size=9747date=2012-12-21T00:00:00
 file,ghost/master/system_config.txtfcd544cc65adf12a526e3dd2724139a5size=629date=2012-12-21T00:00:00
-file,ghost/master/yaya.dll56e3af56c88e696cea1f39d53b239cefsize=880640date=2012-12-21T00:00:00
+file,ghost/master/yaya.dll7ca71c0691df0379655530fcf6d0fa7csize=884736date=2012-12-21T00:00:00
 file,ghost/master/yaya.txt8119441b2fe251e2fd9c811e4b74ef54size=2480date=2012-12-21T00:00:00
 file,ghost/master/yaya_emerg.txtd9ee78e2068ff80d809325bd4fa8228bsize=1055date=2012-12-21T00:00:00
 file,install.txt202f6e5fce5a78af0fb496cddd9d7d78size=72date=2012-12-21T00:00:00
